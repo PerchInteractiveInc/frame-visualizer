@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.14/p5.js"></script>
+  </head>
+  <body>
+    <style>
+      body, html {
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+    <div id="canvasContainer">
+    </div>
+    <div style="position: absolute; top: 10px; right: 10px;">
+      <div id="controlPanel" style="background-color: white; padding: 20px;">
+        <textarea id="regionsText" cols="60" rows="20"></textarea>
+        <br>
+        Width:<input type="number" id="canvasWidthInput">
+        Height:<input type="number" id="canvasHeightInput">
+        <button onclick="updateCanvas()">Update</button>
+        <button onclick="hideControls()">-</button>
+      </div>
+      <div id="controlExpandButton" style="display: none">
+        <button onclick="showControls()">+</button>
+      </div>
+    </div>
+
+  </body>
+  <script src="sketch.js"></script>
+</html>
