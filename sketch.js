@@ -134,8 +134,8 @@ function normalizeAreas(areas, transforms){
     if(!transforms){
       return area;
     }
-    var width = transforms.width;
-    var height = transforms.height;
+    var width = transforms.width || 1;
+    var height = transforms.height || 1;
     if(width){
       area.x = area.x/width;
       area.width = area.width/width;
@@ -154,8 +154,8 @@ function transformAreas(areas, transforms){
     if(!transforms){
       return area;
     }
-    var width = transforms.width;
-    var height = transforms.height;
+    var width = transforms.width || 1;
+    var height = transforms.height || 1;
 
     if(width){
       area.x = area.x * width;
@@ -253,7 +253,7 @@ function rotateClockwise(){
   var regions = readRegionsJson();
   var normalized = normalizeAreas(regions.areas, regions.transforms);
   var rotated = normalized.map(area => {
-    var x = 1 - area.y;
+    var x = 1 - area.y - area.height;
     var y = area.x;
     var height = area.width;
     var width = area.height;
