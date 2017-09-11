@@ -219,8 +219,8 @@ function showControls(){
 function flipX(){
   var regions = readRegionsJson();
   regions.areas.forEach(area => {
-    area.x = regions.transforms.width - area.x;
-  })
+    area.x = regions.transforms.width - area.x - area.width;
+  });
   writeRegionsJson(regions);
   updateCanvas();
 }
@@ -228,8 +228,8 @@ function flipX(){
 function flipY(){
   var regions = readRegionsJson();
   regions.areas.forEach(area => {
-    area.y = regions.transforms.height - area.y;
-  })
+    area.y = regions.transforms.height - area.y - area.height;
+  });
   writeRegionsJson(regions);
   updateCanvas();
 }
