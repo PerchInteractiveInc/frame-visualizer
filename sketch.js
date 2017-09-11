@@ -80,19 +80,31 @@ var sample = {
 	]
 }
 
-document.getElementById('regionsText').value = JSON.stringify(sample, 2);
+writeRegionsJson(sample);
 
 
-function updateCanvas(){
+function readRegionsJson(){
   var regionsStr = document.getElementById('regionsText').value;
   var regions;
-  console.log(regionsStr)
   try {
     regions = JSON.parse(regionsStr);
   } catch (e){
     window.alert('Regions text is not valid JSON.');
   }
+  if(regions){
+    regions.transforms = regions.transforms || {};
+    regions.areas = regions.areas || [];
+  }
 
+  return regions;
+}
+
+function writeRegionsJson(regions){
+  document.getElementById('regionsText').value = JSON.stringify(regions);
+}
+
+function updateCanvas(){
+  var regions = readRegionsJson();
   if(!regions){
     return;
   }
@@ -106,37 +118,65 @@ function updateCanvas(){
     window.alert('No region areas to visualize.');
     return;
   }
-
-
   visualized = [];
+  var areas = normalizeAreas(regions.areas, regions.transforms);
+  areas.map(area => {
+    setVisual(area);
+  });
+}
 
-  regions.areas.map(area => {
-    setVisual(area, regions.transforms);
+function setVisual(area){
+  visualized.push(scaleAreaToCanvas(area));
+}
+
+function normalizeAreas(areas, transforms){
+  var normalized = areas.map(area => {
+    if(!transforms){
+      return area;
+    }
+    var width = transforms.width;
+    var height = transforms.height;
+    if(width){
+      area.x = area.x/width;
+      area.width = area.width/width;
+    }
+    if(height){
+      area.y = area.y/height;
+      area.height = area.height/height;
+    }
+    return area;
   })
-  console.log(visualized);
+  return normalized;
 }
 
-function setVisual(area, transforms){
-  transforms = transforms || {};
-  area = scaleArea(area, transforms.width, transforms.height);
-  visualized.push(area);
+function transformAreas(areas, transforms){
+  var transformed = areas.map(area => {
+    if(!transforms){
+      return area;
+    }
+    var width = transforms.width;
+    var height = transforms.height;
+
+    if(width){
+      area.x = area.x * width;
+      area.width = area.width * width;
+    }
+    if(height){
+      area.y = area.y * height;
+      area.height = area.height * height;
+    }
+    return area;
+  })
+  return transformed;
 }
 
-function scaleArea(area, width, height){
+function scaleAreaToCanvas(area){
   var newArea = {
     name: area.name || 'unnamed',
     x: area.x * canvasWidth,
     y: area.y * canvasHeight,
     width: area.width * canvasWidth,
     height: area.height * canvasHeight
-  }
-  if(width){
-    newArea.x = newArea.x/width;
-    newArea.width = newArea.width/width;
-  }
-  if(height){
-    newArea.y = newArea.y/height;
-    newArea.height = newArea.height/height;
   }
   return newArea;
 }
@@ -174,4 +214,58 @@ function hideControls(){
 function showControls(){
   controls.style.display = '';
   controlsExpand.style.display = 'none';
+}
+
+function flipX(){
+  var regions = readRegionsJson();
+  regions.areas.forEach(area => {
+    area.x = regions.transforms.width - area.x;
+  })
+  writeRegionsJson(regions);
+  updateCanvas();
+}
+
+function flipY(){
+  var regions = readRegionsJson();
+  regions.areas.forEach(area => {
+    area.y = regions.transforms.height - area.y;
+  })
+  writeRegionsJson(regions);
+  updateCanvas();
+}
+
+function roundAreas(areas){
+  return areas.map(area => {
+    area.x = roundNumber(area.x, 3);
+    area.y = roundNumber(area.y, 3);
+    area.width = roundNumber(area.width, 3);
+    area.height = roundNumber(area.height, 3);
+    return area;
+  })
+}
+
+function roundNumber(number, places){
+  var mag = Math.pow(10, places || 0);
+  return Math.floor(number * mag)/mag;
+}
+
+function rotateClockwise(){
+  var regions = readRegionsJson();
+  var normalized = normalizeAreas(regions.areas, regions.transforms);
+  var rotated = normalized.map(area => {
+    var x = 1 - area.y;
+    var y = area.x;
+    var height = area.width;
+    var width = area.height;
+    area.x = x;
+    area.y = y;
+    area.width = width;
+    area.height = height;
+    return area;
+  });
+  regions.areas = rotated;
+  regions.areas = transformAreas(regions.areas, regions.transforms);
+  regions.areas = roundAreas(regions.areas);
+  writeRegionsJson(regions);
+  updateCanvas();
 }
