@@ -123,6 +123,7 @@ function updateCanvas(){
   areas.map(area => {
     setVisual(area);
   });
+	renderApp();
 }
 
 function setVisual(area){
@@ -268,4 +269,24 @@ function rotateClockwise(){
   regions.areas = roundAreas(regions.areas);
   writeRegionsJson(regions);
   updateCanvas();
+}
+
+function renderApp(){
+	renderAreaControlPanel();
+}
+
+function renderAreaControlPanel(){
+	var regions = readRegionsJson();
+	var areaContainer = document.getElementById('area-container');
+	areaContainer.innerHTML = null;
+	if(regions.areas){
+		regions.areas.map((area, a) => {
+			var div = document.createElement('div');
+			div.innerHTML = `
+				<span>${area.name || 'Area ' + (a + 1)}</span>
+				<button id="calibrate(${a})">Calibrate</button>
+			`
+			areaContainer.appendChild(div)
+		})
+	}
 }
