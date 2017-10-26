@@ -26,6 +26,9 @@
       #controlHideButton {
         float: right;
       }
+      #error-box {
+        color: red;
+      }
     </style>
     <div id="canvasContainer">
     </div>
@@ -34,20 +37,57 @@
         <button id="controlHideButton" onclick="hideControls()">-</button>
         <br>
         <textarea id="regionsText" cols="60" rows="20"></textarea>
+        <div id="error-box"></div>
+        <br>
+        <strong>CANVAS</strong>
         <br>
         Width:<input type="number" id="canvasWidthInput">
+        <br>
         Height:<input type="number" id="canvasHeightInput">
         <br>
-        <button onclick="flipX()">flipX</button>
-        <button onclick="flipY()">flipY</button>
-        <button onclick="rotateClockwise()">rotate</button>
         <br>
-        <button onclick="updateCanvas()">Update</button>
+        <strong>FRAME</strong>
+        <br>
+        Origin:
+        <select id="originInput">
+          <option value="">--default--</option>
+          <option value="top-left">Top Left</option>
+          <option value="top-right">Top Right</option>
+          <option value="bottom-right">Bottom Right</option>
+          <option value="bottom-left">Bottom Left</option>
+        </select>
+        <br>
+        Width:<input type="number" id="frameWidthInput">
+        <br>
+        Height:<input type="number" id="frameHeightInput">
+        <br>
+        <br>
+        <strong>SCREEN</strong>
+        <br>
+        Width:<input type="number" id="screenWidthInput">
+        <br>
+        Height:<input type="number" id="screenHeightInput">
+        <br>
+        Position&nbsp;
+        x: <input type="number" id="screenXInput">&nbsp;
+        y:<input type="number" id="screenYInput">
+        <br>
+        <br>
+        <strong>TRANSFORM</strong>
+        <br>
+        <button onclick="applyRegionsTransform('flipX')">flipX</button>
+        <button onclick="applyRegionsTransform('flipY')">flipY</button>
+        <button onclick="applyRegionsTransform('rotateClockwise')">rotate</button>
+        <br><br>
+        <button onclick="updateRegionsFromInput()">Update</button>
       </div>
       <div id="controlExpandButton" style="display: none">
         <button onclick="showControls()">+</button>
       </div>
     </div>
   </body>
-  <script src="sketch.js"></script>
+  <script src="scripts/sketch.js"></script>
+  <script src="scripts/controls.js"></script>
+  <script src="scripts/transforms.js"></script>
+
 </html>
