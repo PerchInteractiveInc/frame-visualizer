@@ -13,7 +13,7 @@ function setup(){
 // Drawing
 function setupBackground(){
   noStroke();
-  fill(227, 254, 211);
+  fill(80, 80, 80);
   rect(0, 0, canvasWidth, canvasHeight);
 }
 
@@ -34,7 +34,7 @@ function draw(){
 // Transform regions file to visualization
 
 
-function updateCanvasRegions(regions){
+function applyRegionsToCanvas(regions){
   if(!regions){
     return;
   }

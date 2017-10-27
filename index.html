@@ -1,93 +1,138 @@
 <html>
-  <head>
-    <script src="libs/p5.min.js"></script>
-    <script src="libs/PerchUnit.js"></script>
-  </head>
-  <body>
-    <style>
-      body, html {
-        padding: 0;
-        margin: 0;
-      }
 
-      .controlContainer {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-      }
-      #controlPanel {
-        background-color: white;
-        padding: 20px;
-        border-radius: 6px;
-        box-shadow: 2px 2px 4px rgb(51, 51, 51);
-      }
-      #controlExpandButton {
-      }
-      #controlHideButton {
-        float: right;
-      }
-      #error-box {
-        color: red;
-      }
-    </style>
-    <div id="canvasContainer">
-    </div>
-    <div class="controlContainer">
-      <div id="controlPanel">
-        <button id="controlHideButton" onclick="hideControls()">-</button>
-        <br>
-        <textarea id="regionsText" cols="60" rows="20"></textarea>
-        <div id="error-box"></div>
-        <br>
-        <strong>CANVAS</strong>
-        <br>
-        Width:<input type="number" id="canvasWidthInput">
-        <br>
-        Height:<input type="number" id="canvasHeightInput">
-        <br>
-        <br>
-        <strong>FRAME</strong>
-        <br>
-        Origin:
-        <select id="originInput">
-          <option value="">--default--</option>
-          <option value="top-left">Top Left</option>
-          <option value="top-right">Top Right</option>
-          <option value="bottom-right">Bottom Right</option>
-          <option value="bottom-left">Bottom Left</option>
-        </select>
-        <br>
-        Width:<input type="number" id="frameWidthInput">
-        <br>
-        Height:<input type="number" id="frameHeightInput">
-        <br>
-        <br>
-        <strong>SCREEN</strong>
-        <br>
-        Width:<input type="number" id="screenWidthInput">
-        <br>
-        Height:<input type="number" id="screenHeightInput">
-        <br>
-        Position&nbsp;
-        x: <input type="number" id="screenXInput">&nbsp;
-        y:<input type="number" id="screenYInput">
-        <br>
-        <br>
-        <strong>TRANSFORM</strong>
-        <br>
-        <button onclick="applyRegionsTransform('flipX')">flipX</button>
-        <button onclick="applyRegionsTransform('flipY')">flipY</button>
-        <button onclick="applyRegionsTransform('rotateClockwise')">rotate</button>
-        <br><br>
-        <button onclick="updateRegionsFromInput()">Update</button>
+<head>
+  <script src="libs/p5.min.js"></script>
+  <script src="libs/PerchUnit.js"></script>
+</head>
+
+<body>
+  <style>
+    body,
+    html {
+      padding: 0;
+      margin: 0;
+    }
+
+    button {
+      border: none;
+      background: none;
+      background-color: rgb(83, 32, 105);
+      border-radius: 5px;
+      padding: 8px 12px;
+      color: white;
+    }
+
+    button:hover {
+      background-color: rgb(112, 61, 134);
+      cursor: pointer;
+    }
+
+    .controlContainer {
+      position: fixed;
+      top: 10px;
+      right: 30px;
+      width: 80%;
+      max-height: 700px;
+    }
+
+    #controlPanel {
+      position: relative;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 1px rgba(51, 51, 51, 0.5);
+    }
+
+    .control-button {
+      float: right;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    #regionsText {
+      width: 100%;
+    }
+
+    #error-box {
+      color: red;
+    }
+
+    .col {
+      display: inline-block;
+      margin: 0;
+    }
+
+    .col-left {
+      width: 49%;
+    }
+
+    .col-right {
+      width: 49%;
+    }
+
+    .col-container {
+      padding: 0;
+    }
+
+    .product-control {
+      margin: 10px 0;
+    }
+  </style>
+  <div id="canvasContainer">
+  </div>
+  <div class="controlContainer">
+    <div id="controlPanel">
+      <div class="col-container">
+        <div class="col col-left">
+          <strong>CANVAS</strong>
+          <br> Width:
+          <input type="number" id="canvasWidthInput">
+          <br> Height:
+          <input type="number" id="canvasHeightInput">
+          <br>
+          <br>
+          <strong>FRAME</strong>
+          <br> Origin:
+          <select id="transformsOriginInput">
+            <option value="">--default--</option>
+            <option value="top-left">Top Left</option>
+            <option value="top-right">Top Right</option>
+            <option value="bottom-right">Bottom Right</option>
+            <option value="bottom-left">Bottom Left</option>
+          </select>
+          <br> FlipX:
+          <input type="checkbox" id="transformsFlipXInput">
+          <br> FlipY:
+          <input type="checkbox" id="transformsFlipYInput">
+          <br> Height:
+          <input type="number" id="transformsHeightInput">
+          <br> Width:
+          <input type="number" id="transformsWidthInput">
+          <br><br>
+          <strong>PRODUCTS</strong>
+          <br><br>
+          <div id="product-control-container"></div>
+          <br>
+          <button onclick="applyInputsToRegions()">Update</button>
+        </div>
+        <div class="col col-right">
+          <strong>JSON</strong>
+          <textarea id="regionsText" rows="20"></textarea>
+          <div id="error-box"></div>
+          <br>
+          <button onclick="applyJsonToRegions()">Update</button>
+        </div>
       </div>
-      <div id="controlExpandButton" style="display: none">
-        <button onclick="showControls()">+</button>
-      </div>
     </div>
-  </body>
-  <script src="scripts/sketch.js"></script>
-  <script src="scripts/controls.js"></script>
-  <script src="scripts/transforms.js"></script>
+    <button class="control-button" id="controlHideButton" onclick="hideControls()">-</button>
+    <div class="control-button" id="controlExpandButton" style="display: none">
+      <button onclick="showControls()">+</button>
+    </div>
+  </div>
+</body>
+<script src="scripts/sketch.js"></script>
+<script src="scripts/controls.js"></script>
+<script src="scripts/transforms.js"></script>
 
 </html>

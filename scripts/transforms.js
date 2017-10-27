@@ -1,20 +1,27 @@
 function normalizeAreas(areas, transforms){
-  var normalized = areas.map(area => {
-    if(!transforms){
-      return area;
+  var normalized = [];
+
+  areas.map(area => {
+    var pushed = {
+      x: area.x,
+      y: area.y,
+      width: area.width,
+      height: area.height,
+      name: area.name
     }
     var width = transforms.width || 1;
     var height = transforms.height || 1;
     if(width){
-      area.x = area.x/width;
-      area.width = area.width/width;
+      pushed.x = pushed.x/width;
+      pushed.width = pushed.width/width;
     }
     if(height){
-      area.y = area.y/height;
-      area.height = area.height/height;
+      pushed.y = pushed.y/height;
+      pushed.height = pushed.height/height;
     }
-    return area;
+    normalized.push(pushed);
   })
+
   return normalized;
 }
 
