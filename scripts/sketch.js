@@ -34,7 +34,7 @@ function draw(){
 // Transform regions file to visualization
 
 
-function applyRegionsToCanvas(regions){
+function applyRegionsToCanvas(){
   if(!regions){
     return;
   }
