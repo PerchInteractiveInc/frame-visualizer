@@ -1,0 +1,94 @@
+body,
+html {
+  padding: 0;
+  margin: 0;
+}
+
+button {
+  border: none;
+  background: none;
+  background-color: rgb(83, 32, 105);
+  border-radius: 5px;
+  padding: 8px 12px;
+  color: white;
+}
+
+button:hover {
+  background-color: rgb(112, 61, 134);
+  cursor: pointer;
+}
+
+button.default-button {
+  padding: 6px 8px;
+  background-color: transparent;
+  border: 1px solid rgb(83, 32, 105);
+  color: rgb(83, 32, 105);
+}
+
+button.default-button:hover {
+  background-color: rgb(112, 61, 134);
+  color: white;
+  cursor: pointer;
+}
+
+.controlContainer {
+  position: fixed;
+  top: 10px;
+  right: 30px;
+  width: 80%;
+}
+
+#controlPanel {
+  position: relative;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 1px rgba(51, 51, 51, 0.5);
+  max-height: 600px;
+}
+
+.control-button {
+  float: right;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+#regionsText {
+  width: 100%;
+}
+
+#error-box {
+  color: red;
+}
+
+.col {
+  display: inline-block;
+  margin: 0;
+  overflow-y: scroll;
+  max-height: 600px;
+}
+
+.col-left {
+  width: 49%;
+}
+
+.col-right {
+  width: 49%;
+}
+
+.col-container {
+  padding: 0;
+  max-height: 600px;
+}
+
+.product-control {
+  margin: 30px 0;
+}
+
+.single-digit {
+  width: 40px;
+}
+.four-digit {
+  width: 80px;
+}

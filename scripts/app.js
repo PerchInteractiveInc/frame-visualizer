@@ -2,12 +2,17 @@ var visualized = [];
 var canvas;
 var canvasWidth = 1080;
 var canvasHeight = 1920;
+var controller = new IndexController();
+var controls = document.getElementById('controlPanel');
+var controlsExpand = document.getElementById('controlExpandButton');
+document.getElementById('canvasWidthInput').value = canvasWidth;
+document.getElementById('canvasHeightInput').value = canvasHeight;
 
 // p5 functions
 function setup(){
   canvas = createCanvas(canvasWidth, canvasHeight);
   canvas.parent('canvasContainer');
-  init();
+  controller.init();
 }
 
 // Drawing
@@ -34,7 +39,7 @@ function draw(){
 // Transform regions file to visualization
 
 
-function applyRegionsToCanvas(){
+function applyRegionsToCanvas(regions){
   if(!regions){
     return;
   }

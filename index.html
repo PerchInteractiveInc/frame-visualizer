@@ -3,92 +3,10 @@
 <head>
   <script src="libs/p5.min.js"></script>
   <script src="libs/PerchUnit.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles/app.css">
 </head>
 
 <body>
-  <style>
-    body,
-    html {
-      padding: 0;
-      margin: 0;
-    }
-
-    button {
-      border: none;
-      background: none;
-      background-color: rgb(83, 32, 105);
-      border-radius: 5px;
-      padding: 8px 12px;
-      color: white;
-    }
-
-    button:hover {
-      background-color: rgb(112, 61, 134);
-      cursor: pointer;
-    }
-
-    .controlContainer {
-      position: fixed;
-      top: 10px;
-      right: 30px;
-      width: 80%;
-    }
-
-    #controlPanel {
-      position: relative;
-      background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 2px 2px 1px rgba(51, 51, 51, 0.5);
-      max-height: 600px;
-    }
-
-    .control-button {
-      float: right;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-
-    #regionsText {
-      width: 100%;
-    }
-
-    #error-box {
-      color: red;
-    }
-
-    .col {
-      display: inline-block;
-      margin: 0;
-      overflow-y: scroll;
-      max-height: 600px;
-    }
-
-    .col-left {
-      width: 49%;
-    }
-
-    .col-right {
-      width: 49%;
-    }
-
-    .col-container {
-      padding: 0;
-      max-height: 600px;
-    }
-
-    .product-control {
-      margin: 30px 0;
-    }
-
-    .single-digit {
-      width: 40px;
-    }
-    .four-digit {
-      width: 80px;
-    }
-  </style>
   <div id="canvasContainer">
   </div>
   <div class="controlContainer">
@@ -121,11 +39,11 @@
           <input type="number" id="transformsWidthInput">
           <br><br>
           <strong>PRODUCTS</strong>
-          <button onclick="addProduct()">Add</button>
+          <button onclick="controller.addProduct()">Add</button>
           <br>
           <div id="product-control-container"></div>
           <br>
-          <button onclick="applyInputsToRegions()">Update</button>
+          <button onclick="controller.applyInputsToRegions()">Update</button>
         </div>
         <div class="col col-right">
           <strong>JSON</strong>
@@ -133,17 +51,25 @@
           <div id="error-box"></div>
           <br>
           <button onclick="applyJsonToRegions()">Update</button>
+          <div>
+            <div id="campaigns-control-container"></div>
+            <button onclick="writeToCampaign()">Write To Campaign</button>
+          </div>
         </div>
       </div>
     </div>
-    <button class="control-button" id="controlHideButton" onclick="hideControls()">-</button>
+    <button class="control-button" id="controlHideButton" onclick="controller.hideControls()">-</button>
     <div class="control-button" id="controlExpandButton" style="display: none">
-      <button onclick="showControls()">+</button>
+      <button onclick="controller.showControls()">+</button>
     </div>
   </div>
 </body>
-<script src="scripts/sketch.js"></script>
-<script src="scripts/controls.js"></script>
+<script src="scripts/sample-data.js"></script>
+<script src="scripts/campaigns.js"></script>
 <script src="scripts/transforms.js"></script>
+<script src="scripts/components.js"></script>
+<script src="scripts/controller.js"></script>
+<script src="scripts/app.js"></script>
+<script src="scripts/sensing.js"></script>
 
 </html>
