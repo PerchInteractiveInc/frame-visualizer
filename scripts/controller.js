@@ -1,14 +1,19 @@
 class IndexController {
 	constructor(){
 		this.campaigns = [];
-		this.regions = sample || {};
+		this.app = sample || {};
+		this.regions = this.app.regions || {};
 		this.CampaignManager = new CampaignManager();
 		this.Components = new IndexComponents();
 	}
 
 	init(){
 		console.log('Initializing...');
-		this.render();
+		this.CampaignManager.getAll()
+		.then(campaigns => {
+			this.campaigns = campaigns;
+			this.render();
+		})
 	}
 
 	hideControls(){
@@ -27,15 +32,6 @@ class IndexController {
 			window.alert('Successful!');
 		})
 		.catch(err => window.alert(err))
-	}
-
-	getCampaigns(){
-		this.CampaignManager.getAll()
-		.then(data => {
-			campaigns = data;
-			this.render();
-		})
-		.catch(err => console.error(err))
 	}
 
 	addProduct(){

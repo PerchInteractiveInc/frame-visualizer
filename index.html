@@ -13,6 +13,14 @@
     <div id="controlPanel">
       <div class="col-container">
         <div class="col col-left">
+          <strong>PRODUCTS</strong>
+          <button onclick="controller.addProduct()">Add</button>
+          <br>
+          <div id="product-control-container"></div>
+          <br>
+          <button onclick="controller.applyInputsToRegions()">Update</button>
+        </div>
+        <div class="col col-right">
           <strong>CANVAS</strong>
           <br> Width:
           <input type="number" id="canvasWidthInput">
@@ -38,14 +46,6 @@
           <br> Width:
           <input type="number" id="transformsWidthInput">
           <br><br>
-          <strong>PRODUCTS</strong>
-          <button onclick="controller.addProduct()">Add</button>
-          <br>
-          <div id="product-control-container"></div>
-          <br>
-          <button onclick="controller.applyInputsToRegions()">Update</button>
-        </div>
-        <div class="col col-right">
           <strong>JSON</strong>
           <textarea id="regionsText" rows="20"></textarea>
           <div id="error-box"></div>

@@ -5,7 +5,7 @@ class CampaignManager {
 
   getAll(){
     return new Promise((resolve, reject) => {
-      http.get('http://localhost:5050/api/apps/get', (err, body) => {
+      http.get('http://localhost:5050/api/campaigns', (err, body) => {
         if(err){
           return reject(error)
         }
