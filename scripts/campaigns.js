@@ -22,9 +22,15 @@ class CampaignManager {
 
   writeRegionsFile(campaignId, regions){
     return new Promise((resolve, reject) => {
-      http.post(`http://localhost:5050/api/campaigns/${campaignId}/regions`, regions, (err, body) => {
+      if(typeof regions !== 'object'){
+        console.error('JSON is invalid.', regions);
+        return;
+      }
+      http.post(`http://localhost:5050/api/campaigns/${campaignId}/regions`, {
+        regions: regions
+      }, (err, body) => {
         if(err){
-          return reject(error)
+          return reject(err)
         }
         resolve(body);
       })
@@ -64,14 +70,16 @@ function httpPost(path, body, cb){
   var oReq = new XMLHttpRequest();
   var bodyString;
   oReq.addEventListener("load", function(){
+    var res;
     try {
-      cb(null, JSON.parse(this.responseText));
+      res = JSON.parse(this.responseText)
+    } catch(e) {
+      res = this.responseText;
+    }
+    try {
+      cb(null, res);
     } catch (err) {
-      try {
-        cb(this.responseText);
-      } catch (err){
-        cb(err)
-      }
+      cb(err);
     }
   });
   oReq.open("POST", path);

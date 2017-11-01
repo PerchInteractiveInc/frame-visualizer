@@ -4,7 +4,10 @@ class EditController {
 		this.regions;
 		this.CampaignManager = new CampaignManager();
 		this.PerchUnit = new PerchUnit();
+		this.PerchUnit.on('sensing', e => this.handleHubEvent(e));
 		this.campaignId = getParameterByName('campaignId');
+		this.calibrationTarget;
+		this.calibrationPoints = [];
 		this.setup();
 		this.addListeners();
 	}
@@ -25,6 +28,21 @@ class EditController {
 			console.log(this.campaign);
 			this.render();
 		})
+	}
+
+	handleHubEvent(e){
+		if(
+			typeof this.calibrationTarget === 'number' &&
+			this.regions.areas[this.calibrationTarget] &&
+			e.raw &&
+			typeof e.raw.x === 'number' &&
+			typeof e.raw.y === 'number'
+		){
+			this.calibrationPoints.push({
+				x: e.raw.x,
+				y: e.raw.y
+			})
+		}
 	}
 
 	addListeners(){
@@ -82,11 +100,19 @@ class EditController {
 	}
 
 	writeRegionsFile(){
-		this.CampaignManager.writeRegionsFile(this.campaignId, this.regions)
+		var regions = readRegionsJson();
+		if(!regions){
+			window.alert('JSON invalid.');
+			return;
+		}
+		this.CampaignManager.writeRegionsFile(this.campaignId, regions)
 		.then(() => {
 			window.alert('Successful!');
 		})
-		.catch(err => window.alert(err))
+		.catch(err => {
+			console.log(err);
+			window.alert(err)
+		})
 	}
 
 	addProduct(){
@@ -108,7 +134,19 @@ class EditController {
 		this.render();
 	}
 
-	calibrateProduct(i){
+	startCalibration(i){
+		this.calibrationTarget = i;
+		this.calibrationPoints = [];
+	}
+
+	endCalibration(){
+		// find external bounding box
+		// calculate new region
+		//
+		this.calibrationPoints = [];
+	}
+
+	clearCalibrationPoints(i){
 
 	}
 
