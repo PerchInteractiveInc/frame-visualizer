@@ -4,19 +4,21 @@ class IndexController {
     this.TransformService = new TransformService();
     this.PerchUnit = new PerchUnit();
     this.campaign;
+    this.campaigns = [];
     this.canvas;
+    this.canvasContainer = document.getElementById('canvasContainer');
     this.points = [];
     this.canvasWidth = window.outerWidth;
     this.canvasHeight = window.outerHeight;
 
     this.setupCampaign(sample || {});
     this.PerchUnit.on('sensing', e => this.handleHubEvent(e));
-
-    for (var i = 0; i < 10; i++){
-      for(var j = 0; j < 10; j++){
-        this.addPoint(i/10, j/10, 20);
-      }
-    }
+    this.CampaignManager.getAll()
+    .then(data => {
+      this.campaigns = data.results;
+      this.render();
+    })
+    .catch(err => console.error(err));
   }
 
   handleHubEvent(e){
@@ -71,12 +73,81 @@ class IndexController {
     return false;
   }
 
+  loadCampaign(c){
+    this.setupCampaign(this.campaigns[c]);
+    console.log(this.campaign)
+    this.hideCampaignsPanel();
+    this.render();
+  }
+
+  // DOM manipulation
+
+  showCampaignsPanel(){
+    var campaignsPanel = document.getElementById('campaigns-panel');
+    campaignsPanel.style.display = 'inline-block';
+    this.canvasContainer.style.display = 'none';
+  }
+
+  hideCampaignsPanel(){
+    var campaignsPanel = document.getElementById('campaigns-panel');
+    campaignsPanel.style.display = 'none';
+    this.canvasContainer.style.display = '';
+  }
+
+  renderCampaignsPanel(){
+    var campaignsPanel = document.getElementById('campaigns-panel');
+    campaignsPanel.innerHTML = '';
+    this.campaigns.map((campaign, c) => {
+      var div = document.createElement('div');
+      div.innerHTML = `
+        ${campaign.name}
+        &nbsp;&nbsp;
+      `
+      if(!campaign || !campaign.regions || !campaign.regions.areas || !campaign.regions.areas.length){
+        div.innerHTML += '(no areas)&nbsp;'
+      }
+      div.innerHTML += `
+        <button onclick="controller.loadCampaign(${c})">Load</button>
+      `
+      campaignsPanel.appendChild(div);
+    })
+  }
+
+  renderCampaignTitle(){
+    var campaignTitle = document.getElementById('campaign-title');
+    campaignTitle.innerHTML = this.campaign.name + '&nbsp;&nbsp;';
+  }
+
+  renderEditButton(){
+    if(!this.campaign.id){
+      return;
+    }
+    var campaignEdit = document.getElementById('campaign-edit');
+    campaignEdit.innerHTML = '';
+    var link = document.createElement('a');
+    link.href = './edit.html?campaignId=' + this.campaign.id;
+    var button = document.createElement('button');
+    button.innerHTML = 'Edit';
+    campaignEdit.appendChild(link);
+    link.appendChild(button);
+  }
+
+  render(){
+    this.renderCampaignTitle();
+    this.renderEditButton();
+    this.renderCampaignsPanel();
+  }
 
   // Canvas functions
 
   setup(){
     this.canvas = createCanvas(this.canvasWidth, this.canvasHeight);
     this.canvas.parent('canvasContainer');
+    for (var i = 0; i < 10; i++){
+      for(var j = 0; j < 10; j++){
+        this.addPoint(i/10, j/10, 20);
+      }
+    }
   }
 
   draw(){

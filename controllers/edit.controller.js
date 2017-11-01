@@ -1,29 +1,20 @@
 class IndexController {
 	constructor(){
-		this.campaigns = [];
-		this.app = sample || {};
-		this.regions = this.app.regions || {};
+		this.campaign;
 		this.CampaignManager = new CampaignManager();
-		this.Components = new IndexComponents();
 	}
 
 	init(){
 		console.log('Initializing...');
 		this.CampaignManager.getAll()
 		.then(campaigns => {
-			this.campaigns = campaigns;
+			campaigns.map(campaign => {
+				if(campaign.id === this.campaignId){
+					this.campaign = campaign;
+				}
+			})
 			this.render();
 		})
-	}
-
-	hideControls(){
-		controls.style.display = 'none';
-		controlsExpand.style.display = '';
-	}
-
-	showControls(){
-		controls.style.display = '';
-		controlsExpand.style.display = 'none';
 	}
 
 	setRegions(){
@@ -116,8 +107,6 @@ function getInputMap(){
 	]
 	return inputMap;
 }
-
-// Product controls
 
 // Rendering
 
