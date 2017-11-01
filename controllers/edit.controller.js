@@ -35,12 +35,12 @@ class EditController {
 			typeof this.calibrationTarget === 'number' &&
 			this.regions.areas[this.calibrationTarget] &&
 			e.raw &&
-			typeof e.raw.x === 'number' &&
-			typeof e.raw.y === 'number'
+			typeof e.raw.xPos === 'number' &&
+			typeof e.raw.yPos === 'number'
 		){
 			this.calibrationPoints.push({
-				x: e.raw.x,
-				y: e.raw.y
+				x: e.raw.xPos,
+				y: e.raw.yPos
 			})
 		}
 	}
@@ -226,8 +226,7 @@ function readRegionsJson(){
     res = JSON.parse(regionsStr);
 		res.transforms = res.transforms || {};
 		res.areas = res.areas || [];
-  } catch (e){
-  }
+  } catch (e){};
 	return res;
 }
 

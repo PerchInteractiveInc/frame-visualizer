@@ -21,8 +21,8 @@ class IndexController {
   }
 
   handleHubEvent(e){
-    if(e.raw && typeof e.raw.x === 'number' && typeof e.raw.y === 'number'){
-      this.addPoint(e.raw.x, e.raw.y);
+    if(e.raw && typeof e.raw.xPos === 'number' && typeof e.raw.yPos === 'number'){
+      this.addPoint(e.raw.xPos, e.raw.yPos);
     }
   }
 
