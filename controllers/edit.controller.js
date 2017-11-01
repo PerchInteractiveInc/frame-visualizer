@@ -32,8 +32,8 @@ class EditController {
 		inputs.map(input => {
 			var el = document.getElementById(input[1]);
 			var controller = this;
-			el.addEventListener('change', () => {
-				controller.updateRegionsData(input[0], el[input[2]])
+			el.addEventListener(input[3], () => {
+				controller.updateRegionsData(input[0], el[input[2]], el.type)
 				this.render();
 			})
 		})
@@ -45,6 +45,9 @@ class EditController {
 			var json = readRegionsJson();
 			if(json){
 				errorBox.innerHTML = '';
+				if(JSON.stringify(this.regions) == JSON.stringify(json)){
+					return;
+				}
 				this.regions = json;
 				this.render();
 			} else {
@@ -53,8 +56,11 @@ class EditController {
 		})
 	}
 
-	updateRegionsData(map, value){
+	updateRegionsData(map, value, type){
 		if(value){
+			if(type === 'number'){
+				value = Number(value);
+			}
 			this.regions[map[0]][map[1]] = value;
 		} else {
 			delete this.regions[map[0]][map[1]];
@@ -75,8 +81,8 @@ class EditController {
 		delete this.regions.transforms.height;
 	}
 
-	updateRegionsFile(){
-		this.CampaignManger.setRegions(campaignId, this.regions)
+	writeRegionsFile(){
+		this.CampaignManager.writeRegionsFile(this.campaignId, this.regions)
 		.then(() => {
 			window.alert('Successful!');
 		})
@@ -103,20 +109,7 @@ class EditController {
 	}
 
 	calibrateProduct(i){
-		
-	}
 
-	applyInputsToRegions(){
-		var inputMap = getInputMap();
-		inputMap.forEach(input => {
-			var el = document.getElementById(input[1]);
-			if(el[input[2]] && this.regions[input[0][0]]){
-				this.regions[input[0][0]][input[0][1]] = el[input[2]]
-			} else if (!el[input[2]] && this.regions[input[0][0]] && this.regions[input[0][0]][input[0][1]]){
-				this.regions[input[0][0]][input[0][1]] = el[input[2]]
-			}
-		})
-		this.render();
 	}
 
 	applyJsonToRegions(){
@@ -157,7 +150,17 @@ class EditController {
 		inputMap.map(input => {
 			var el = document.getElementById(input[1]);
 			if(regions[input[0][0]] && regions[input[0][0]][input[0][1]]){
-				el[input[2]] = regions[input[0][0]][input[0][1]];
+				if(el.type === 'number'){
+					el[input[2]] = Number(regions[input[0][0]][input[0][1]]);
+				} else {
+					el[input[2]] = regions[input[0][0]][input[0][1]];
+				}
+			} else {
+				if (el.type === 'checked'){
+					el[input[2]] = false;
+				} else {
+					el[input[2]] = '';
+				}
 			}
 		})
 	}
@@ -192,10 +195,10 @@ function readRegionsJson(){
 
 function getInputMap(){
 	var inputMap = [
-		[['transforms', 'origin'], 'transformsOriginInput', 'value'],
-		[['transforms', 'flipX'], 'transformsFlipXInput', 'checked'],
-		[['transforms', 'flipY'], 'transformsFlipYInput', 'checked'],
-		[['aggregate', 'delay'], 'aggregateDelayInput', 'value']
+		[['transforms', 'origin'], 'transformsOriginInput', 'value', 'change'],
+		[['transforms', 'flipX'], 'transformsFlipXInput', 'checked', 'change'],
+		[['transforms', 'flipY'], 'transformsFlipYInput', 'checked', 'change'],
+		[['aggregate', 'delay'], 'aggregateDelayInput', 'value', 'input']
 	]
 	return inputMap;
 }

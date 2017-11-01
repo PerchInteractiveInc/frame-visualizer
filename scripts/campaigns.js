@@ -20,7 +20,7 @@ class CampaignManager {
     })
   }
 
-  setRegions(campaignId, regions){
+  writeRegionsFile(campaignId, regions){
     return new Promise((resolve, reject) => {
       http.post(`http://localhost:5050/api/campaigns/${campaignId}/regions`, regions, (err, body) => {
         if(err){
@@ -74,10 +74,10 @@ function httpPost(path, body, cb){
       }
     }
   });
+  oReq.open("POST", path);
   if(body && typeof body === 'object'){
     oReq.setRequestHeader("Content-type", "application/json");
     bodyString = JSON.stringify(body);
   }
-  oReq.open("POST", path);
   oReq.send(bodyString);
 }
