@@ -59,8 +59,9 @@ button.default-button:hover {
 .col {
   display: inline-block;
   margin: 0;
-  overflow-y: scroll;
-  max-height: 600px;
+  vertical-align: top;
+  box-sizing:border-box;
+  padding-right: 10px;
 }
 
 .col-left {
@@ -73,7 +74,6 @@ button.default-button:hover {
 
 .col-container {
   padding: 0;
-  max-height: 600px;
 }
 
 .product-control {

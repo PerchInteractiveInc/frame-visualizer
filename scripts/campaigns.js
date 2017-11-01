@@ -9,7 +9,13 @@ class CampaignManager {
         if(err){
           return reject(error)
         }
-        resolve(body);
+        var campaigns = body.results.map(campaign => {
+          campaign.regions = campaign.regions || {};
+          campaign.transforms = campaign.transforms || {};
+          campaign.regions.areas = campaign.regions.areas || [];
+          return campaign;
+        })
+        resolve(campaigns);
       })
     })
   }

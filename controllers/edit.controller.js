@@ -1,23 +1,81 @@
-class IndexController {
+class EditController {
 	constructor(){
 		this.campaign;
+		this.regions;
 		this.CampaignManager = new CampaignManager();
+		this.PerchUnit = new PerchUnit();
+		this.campaignId = getParameterByName('campaignId');
+		this.setup();
+		this.addListeners();
 	}
 
-	init(){
+	setup(){
 		console.log('Initializing...');
 		this.CampaignManager.getAll()
 		.then(campaigns => {
 			campaigns.map(campaign => {
 				if(campaign.id === this.campaignId){
 					this.campaign = campaign;
+					this.setRegions(this.campaign.regions);
 				}
-			})
+			});
+			if(!this.campaign){
+				throw new Error('No campaign found with id ' + this.campaignId)
+			}
+			console.log(this.campaign);
 			this.render();
 		})
 	}
 
-	setRegions(){
+	addListeners(){
+		var inputs = getInputMap();
+		inputs.map(input => {
+			var el = document.getElementById(input[1]);
+			var controller = this;
+			el.addEventListener('change', () => {
+				controller.updateRegionsData(input[0], el[input[2]])
+				this.render();
+			})
+		})
+
+		var jsonInput = document.getElementById('regionsText');
+		var errorBox = document.getElementById('error-box');
+
+		jsonInput.addEventListener('input', () => {
+			var json = readRegionsJson();
+			if(json){
+				errorBox.innerHTML = '';
+				this.regions = json;
+				this.render();
+			} else {
+				errorBox.innerHTML = 'Regions text is not valid JSON.';
+			}
+		})
+	}
+
+	updateRegionsData(map, value){
+		if(value){
+			this.regions[map[0]][map[1]] = value;
+		} else {
+			delete this.regions[map[0]][map[1]];
+		}
+	}
+
+	setRegions(regions){
+		this.regions = Object.assign({}, regions);
+		this.validateRegions(this.regions);
+		this.regions.areas = this.regions.areas.map(area => {
+			area.x = area.x / (this.regions.transforms.width || 1);
+			area.y = area.y / (this.regions.transforms.height || 1);
+			area.width = area.width / (this.regions.transforms.width || 1);
+			area.height = area.height / (this.regions.transforms.height || 1);
+			return area;
+		})
+		delete this.regions.transforms.width;
+		delete this.regions.transforms.height;
+	}
+
+	updateRegionsFile(){
 		this.CampaignManger.setRegions(campaignId, this.regions)
 		.then(() => {
 			window.alert('Successful!');
@@ -26,20 +84,18 @@ class IndexController {
 	}
 
 	addProduct(){
-		this.regions.transforms = this.regions.transforms || {};
 		this.regions.areas.push({
 			x: 0,
 			y: 0,
 			width: 0.2 * (this.regions.transforms.width || 1),
 			height: 0.2 * (this.regions.transforms.height || 1),
 			name: `Product${this.regions.areas.length + 1}`
-		})
+		});
 		this.render();
 	}
 
 	removeProduct(i){
 		console.log('Removing product ' + i)
-		this.regions.areas = this.regions.areas || [];
 		this.regions.areas = this.regions.areas.filter((area, a) => {
 			return i == a ? false : true;
 		})
@@ -47,7 +103,7 @@ class IndexController {
 	}
 
 	calibrateProduct(i){
-
+		
 	}
 
 	applyInputsToRegions(){
@@ -60,7 +116,6 @@ class IndexController {
 				this.regions[input[0][0]][input[0][1]] = el[input[2]]
 			}
 		})
-		this.regions = this.regions || {};
 		this.render();
 	}
 
@@ -70,29 +125,67 @@ class IndexController {
 			this.regions = json;
 			this.render();
 		}
-		this.regions = this.regions || {};
+	}
+
+	validateRegions(regions){
+		this.regions.areas = this.regions.areas || [];
+		this.regions.transforms = this.regions.transforms || {};
+		this.regions.aggregate = this.regions.aggregate || {};
 	}
 
 	render(){
-		writeRegionsToJson(this.regions);
-		writeRegionsToInputs(this.regions);
-		applyRegionsToCanvas(this.regions);
-		this.Components.renderProducts(this.regions);
-		this.Components.renderCampaigns(this.campaigns);
+		this.validateRegions(this.regions);
+		this.renderRegionsToJson(this.regions);
+		this.renderRegionsToInputs(this.regions);
+		this.renderProductsPanel(this.regions);
+		this.renderCampaignTitle();
+	}
+
+	// Render functions
+
+	renderCampaignTitle(){
+		var el = document.getElementById('campaign-title');
+		el.innerHTML = this.campaign.name;
+	}
+
+	renderRegionsToJson(regions){
+		document.getElementById('regionsText').value = JSON.stringify(regions, null, 2);
+	}
+
+	renderRegionsToInputs(regions){
+		var inputMap = getInputMap();
+		inputMap.map(input => {
+			var el = document.getElementById(input[1]);
+			if(regions[input[0][0]] && regions[input[0][0]][input[0][1]]){
+				el[input[2]] = regions[input[0][0]][input[0][1]];
+			}
+		})
+	}
+
+	renderProductsPanel(regions){
+		var container = document.getElementById('products-container');
+		container.innerHTML = '';
+		regions.areas.map((area, a) => {
+			var div = document.createElement('div');
+			div.className = 'product-item';
+			div.innerHTML = `
+				${area.name || '[unnamed]'}&nbsp;&nbsp;<button class="default-button">Calibrate</button>
+				&nbsp;&nbsp;
+				<a href="#" onclick="controller.removeProduct(${a})">x</a>
+			`
+			container.appendChild(div);
+		})
 	}
 }
 
 function readRegionsJson(){
   var regionsStr = document.getElementById('regionsText').value;
-	var errorBox = document.getElementById('error-box');
 	var res = null;
   try {
     res = JSON.parse(regionsStr);
 		res.transforms = res.transforms || {};
 		res.areas = res.areas || [];
-		errorBox.innerHTML = '';
   } catch (e){
-    errorBox.innerHTML = 'Regions text is not valid JSON.';
   }
 	return res;
 }
@@ -102,24 +195,19 @@ function getInputMap(){
 		[['transforms', 'origin'], 'transformsOriginInput', 'value'],
 		[['transforms', 'flipX'], 'transformsFlipXInput', 'checked'],
 		[['transforms', 'flipY'], 'transformsFlipYInput', 'checked'],
-		[['transforms', 'height'], 'transformsHeightInput', 'value'],
-		[['transforms', 'width'], 'transformsWidthInput', 'value']
+		[['aggregate', 'delay'], 'aggregateDelayInput', 'value']
 	]
 	return inputMap;
 }
 
 // Rendering
 
-function writeRegionsToInputs(regions){
-	var inputMap = getInputMap();
-	inputMap.map(input => {
-		var el = document.getElementById(input[1]);
-		if(regions[input[0][0]] && regions[input[0][0]][input[0][1]]){
-			el[input[2]] = regions[input[0][0]][input[0][1]];
-		}
-	})
-}
-
-function writeRegionsToJson(regions){
-	document.getElementById('regionsText').value = JSON.stringify(regions, null, 2);
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }

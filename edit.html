@@ -2,9 +2,11 @@
 
 <head>
   <script src="libs/p5.min.js"></script>
-  <script src="libs/PerchUnit.js"></script>
   <link rel="stylesheet" type="text/css" href="styles/app.css">
   <style>
+    body {
+      padding: 12px;
+    }
     .nav-container {
       position: fixed;
       bottom: 10px;
@@ -22,11 +24,24 @@
       border-radius: 4px;
       padding: 12px;
     }
+
+    .product-item {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
+  <h1 id="campaign-title"></h1>
   <div class="col-container">
     <div class="col col-left">
+      <strong>JSON</strong>
+      <textarea id="regionsText" rows="20"></textarea>
+      <div id="error-box"></div>
+      <br>
+      <button onclick="applyJsonToRegions()">Update</button>
+      <div id="campaigns-control-container"></div>
+    </div>
+    <div class="col col-right">
       <strong>FRAME</strong>
       <br> Origin:
       <select id="transformsOriginInput">
@@ -40,27 +55,16 @@
       <input type="checkbox" id="transformsFlipXInput">
       <br> FlipY:
       <input type="checkbox" id="transformsFlipYInput">
-      <br> Height:
-      <input type="number" id="transformsHeightInput">
-      <br> Width:
-      <input type="number" id="transformsWidthInput">
       <br><br>
-      <strong>JSON</strong>
-      <textarea id="regionsText" rows="20"></textarea>
-      <div id="error-box"></div>
-      <br>
-      <button onclick="applyJsonToRegions()">Update</button>
-      <div>
-        <div id="campaigns-control-container"></div>
-        <button onclick="writeToCampaign()">Write To Campaign</button>
-      </div>
-    </div>
-    <div class="col col-right">
-      <strong>PRODUCTS</strong>
+      Aggregate Delay:
+      <br> Delay:
+      <input type="number" id="aggregateDelayInput">
+      <br><br>
+      <strong>PRODUCTS</strong>&nbsp;&nbsp;
       <button onclick="controller.addProduct()">Add</button>
-      <br>
-      <div id="product-control-container"></div>
-      <br>
+      <br><br>
+      <div id="products-container"></div>
+      <br><br>
       <button onclick="controller.applyInputsToRegions()">Update</button>
     </div>
   </div>
@@ -69,9 +73,10 @@
     <button onclick="controller.save();">Save</button>
   </div>
 </body>
+<script src="libs/PerchUnit.js"></script>
 <script src="scripts/campaigns.js"></script>
 <script src="scripts/transforms.js"></script>
-<script src="controllers/index.controller.js"></script>
+<script src="controllers/edit.controller.js"></script>
 <script>
   var controller = new EditController();
 </script>

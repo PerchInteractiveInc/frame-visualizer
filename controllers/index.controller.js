@@ -3,19 +3,18 @@ class IndexController {
     this.CampaignManager = new CampaignManager();
     this.TransformService = new TransformService();
     this.PerchUnit = new PerchUnit();
-    this.campaign;
     this.campaigns = [];
+    this.campaign = sample || {};
     this.canvas;
     this.canvasContainer = document.getElementById('canvasContainer');
     this.points = [];
     this.canvasWidth = window.outerWidth;
     this.canvasHeight = window.outerHeight;
 
-    this.setupCampaign(sample || {});
     this.PerchUnit.on('sensing', e => this.handleHubEvent(e));
     this.CampaignManager.getAll()
-    .then(data => {
-      this.campaigns = data.results;
+    .then(campaigns => {
+      this.campaigns = campaigns;
       this.render();
     })
     .catch(err => console.error(err));
@@ -25,13 +24,6 @@ class IndexController {
     if(e.raw && typeof e.raw.x === 'number' && typeof e.raw.y === 'number'){
       this.addPoint(e.raw.x, e.raw.y);
     }
-  }
-
-  setupCampaign(campaign){
-    this.campaign = campaign;
-    this.campaign.regions = this.campaign.regions || {};
-    this.campaign.transforms = this.campaign.transforms || {};
-    this.campaign.regions.areas = this.campaign.regions.areas || [];
   }
 
   addPoint(x, y, life){
@@ -74,8 +66,8 @@ class IndexController {
   }
 
   loadCampaign(c){
-    this.setupCampaign(this.campaigns[c]);
-    console.log(this.campaign)
+    this.campaign = this.campaigns[c];
+    console.log(this.campaign);
     this.hideCampaignsPanel();
     this.render();
   }
