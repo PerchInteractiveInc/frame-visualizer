@@ -9,67 +9,24 @@
 <body>
   <div id="canvasContainer">
   </div>
-  <div class="controlContainer">
-    <div id="controlPanel">
-      <div class="col-container">
-        <div class="col col-left">
-          <strong>PRODUCTS</strong>
-          <button onclick="controller.addProduct()">Add</button>
-          <br>
-          <div id="product-control-container"></div>
-          <br>
-          <button onclick="controller.applyInputsToRegions()">Update</button>
-        </div>
-        <div class="col col-right">
-          <strong>CANVAS</strong>
-          <br> Width:
-          <input type="number" id="canvasWidthInput">
-          <br> Height:
-          <input type="number" id="canvasHeightInput">
-          <br>
-          <br>
-          <strong>FRAME</strong>
-          <br> Origin:
-          <select id="transformsOriginInput">
-            <option value="">--default--</option>
-            <option value="top-left">Top Left</option>
-            <option value="top-right">Top Right</option>
-            <option value="bottom-right">Bottom Right</option>
-            <option value="bottom-left">Bottom Left</option>
-          </select>
-          <br> FlipX:
-          <input type="checkbox" id="transformsFlipXInput">
-          <br> FlipY:
-          <input type="checkbox" id="transformsFlipYInput">
-          <br> Height:
-          <input type="number" id="transformsHeightInput">
-          <br> Width:
-          <input type="number" id="transformsWidthInput">
-          <br><br>
-          <strong>JSON</strong>
-          <textarea id="regionsText" rows="20"></textarea>
-          <div id="error-box"></div>
-          <br>
-          <button onclick="applyJsonToRegions()">Update</button>
-          <div>
-            <div id="campaigns-control-container"></div>
-            <button onclick="writeToCampaign()">Write To Campaign</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <button class="control-button" id="controlHideButton" onclick="controller.hideControls()">-</button>
-    <div class="control-button" id="controlExpandButton" style="display: none">
-      <button onclick="controller.showControls()">+</button>
-    </div>
-  </div>
 </body>
-<script src="scripts/sample-data.js"></script>
+<script src="data/sample.js"></script>
 <script src="scripts/campaigns.js"></script>
 <script src="scripts/transforms.js"></script>
-<script src="scripts/components.js"></script>
-<script src="scripts/controller.js"></script>
-<script src="scripts/app.js"></script>
-<script src="scripts/sensing.js"></script>
+<script src="controllers/index.controller.js"></script>
+<script>
+  var controller = new IndexController();
 
+  function setup(){
+    controller.setup();
+  }
+
+  function draw(){
+    controller.draw();
+  }
+
+  window.addEventListener('resize', function() {
+    controller.resizeCanvas(window.outerWidth, window.outerHeight);
+  });
+</script>
 </html>

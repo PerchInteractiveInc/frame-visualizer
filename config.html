@@ -1,0 +1,46 @@
+<div class="col-container">
+  <div class="col col-left">
+    <strong>PRODUCTS</strong>
+    <button onclick="controller.addProduct()">Add</button>
+    <br>
+    <div id="product-control-container"></div>
+    <br>
+    <button onclick="controller.applyInputsToRegions()">Update</button>
+  </div>
+  <div class="col col-right">
+    <strong>CANVAS</strong>
+    <br> Width:
+    <input type="number" id="canvasWidthInput">
+    <br> Height:
+    <input type="number" id="canvasHeightInput">
+    <br>
+    <br>
+    <strong>FRAME</strong>
+    <br> Origin:
+    <select id="transformsOriginInput">
+      <option value="">--default--</option>
+      <option value="top-left">Top Left</option>
+      <option value="top-right">Top Right</option>
+      <option value="bottom-right">Bottom Right</option>
+      <option value="bottom-left">Bottom Left</option>
+    </select>
+    <br> FlipX:
+    <input type="checkbox" id="transformsFlipXInput">
+    <br> FlipY:
+    <input type="checkbox" id="transformsFlipYInput">
+    <br> Height:
+    <input type="number" id="transformsHeightInput">
+    <br> Width:
+    <input type="number" id="transformsWidthInput">
+    <br><br>
+    <strong>JSON</strong>
+    <textarea id="regionsText" rows="20"></textarea>
+    <div id="error-box"></div>
+    <br>
+    <button onclick="applyJsonToRegions()">Update</button>
+    <div>
+      <div id="campaigns-control-container"></div>
+      <button onclick="writeToCampaign()">Write To Campaign</button>
+    </div>
+  </div>
+</div>
