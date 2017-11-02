@@ -199,7 +199,7 @@ class PerchUnit {
 
   // Use to transform x to y
   screenClick(percentX, percentY, screenWidth, screenHeight){
-    this.click(Math.floor(percentX * screenWidth), Math.floor(percentY * screenHeight));''
+    this.click(Math.floor(percentX * screenWidth), Math.floor(percentY * screenHeight));
   }
 
   setDevice(type){

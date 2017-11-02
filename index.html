@@ -1,62 +1,18 @@
 <html>
 
 <head>
-  <script src="libs/p5.min.js"></script>
   <link rel="stylesheet" type="text/css" href="styles/app.css">
-  <style>
-  body,
-  html {
-    padding: 0;
-    margin: 0;
-  }
-    .nav-container {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      background-color: white;
-      border-radius: 4px;
-      padding: 6px 8px;
-    }
-
-    #campaigns-panel {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      background-color: white;
-      border-radius: 4px;
-      padding: 12px;
-    }
-  </style>
 </head>
 
 <body>
-  <div id="canvasContainer">
-  </div>
-  <div id="campaigns-panel" style="display: none;">
-  </div>
-  <div class="nav-container">
-    <span id="campaign-title"></span><span id="campaign-edit"></span>
-    <button onclick="controller.showCampaignsPanel();">Load</button>
+  <div id="campaigns-panel">
   </div>
 </body>
-<script src="libs/PerchUnit.js"></script>
-<script src="data/sample.js"></script>
-<script src="scripts/campaigns.js"></script>
-<script src="scripts/transforms.js"></script>
+<script src="components/campaigns.component.js"></script>
 <script src="controllers/index.controller.js"></script>
 <script>
   var controller = new IndexController();
+  controller.init();
 
-  function setup(){
-    controller.setup();
-  }
-
-  function draw(){
-    controller.draw();
-  }
-
-  window.addEventListener('resize', function() {
-    controller.resizeCanvas(window.outerWidth, window.outerHeight);
-  });
 </script>
 </html>

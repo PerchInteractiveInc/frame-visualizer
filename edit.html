@@ -1,11 +1,20 @@
 <html>
 
 <head>
-  <script src="libs/p5.min.js"></script>
+  <script src="vendor/p5.min.js"></script>
+  <script src="vendor/PerchUnit.js"></script>
   <link rel="stylesheet" type="text/css" href="styles/app.css">
+  <link rel="stylesheet" type="text/css" href="styles/edit.css">
   <style>
-    body {
-      padding: 12px;
+    body, html {
+      padding: 0;
+      margin: 0;
+    }
+    h1 {
+      margin-top: 0px;
+    }
+    .canvas-container {
+
     }
     .nav-container {
       position: fixed;
@@ -28,53 +37,75 @@
     .product-item {
       margin-bottom: 10px;
     }
+
+    .control-panel {
+
+    }
   </style>
 </head>
 <body>
-  <h1 id="campaign-title"></h1>
-  <div class="col-container">
-    <div class="col col-left">
-      <strong>FRAME</strong>
-      <br> Origin:
-      <select id="transformsOriginInput">
-        <option value="">--default--</option>
-        <option value="top-left">Top Left</option>
-        <option value="top-right">Top Right</option>
-        <option value="bottom-right">Bottom Right</option>
-        <option value="bottom-left">Bottom Left</option>
-      </select>
-      <br> FlipX:
-      <input type="checkbox" id="transformsFlipXInput">
-      <br> FlipY:
-      <input type="checkbox" id="transformsFlipYInput">
-      <br><br>
-      Aggregate Delay:
-      <br> Delay:
-      <input type="number" id="aggregateDelayInput">
-      <br><br>
+  <div id="canvasContainer">
+  </div>
+  <div id="control-panel">
+    <h1 id="campaign-title"></h1>
+    <div class="col-container">
+      <div class="col col-left">
+        <strong>FRAME</strong>
+        <br> Origin:
+        <select id="transformsOriginInput">
+          <option value="">--default--</option>
+          <option value="top-left">Top Left</option>
+          <option value="top-right">Top Right</option>
+          <option value="bottom-right">Bottom Right</option>
+          <option value="bottom-left">Bottom Left</option>
+        </select>
+        <br> FlipX:
+        <input type="checkbox" id="transformsFlipXInput">
+        <br> FlipY:
+        <input type="checkbox" id="transformsFlipYInput">
+        <br><br>
+        Aggregate Delay:
+        <br> Delay:
+        <input type="number" id="aggregateDelayInput">
+        <br><br>
 
-      <strong>JSON</strong>
-      <textarea id="regionsText" rows="20"></textarea>
-      <div id="error-box"></div>
-    </div>
-    <div class="col col-right">
-      <strong>PRODUCTS</strong>&nbsp;&nbsp;
-      <button onclick="controller.addProduct()">Add</button>
-      <br><br>
-      <div id="products-container"></div>
-      <br><br>
+        <strong>JSON</strong>
+        <textarea id="regionsText" rows="20"></textarea>
+        <div id="error-box"></div>
+      </div>
+      <div class="col col-right">
+        <strong>PRODUCTS</strong>&nbsp;&nbsp;
+        <button onclick="editController.addProduct()">Add</button>
+        <br><br>
+        <div id="products-container"></div>
+        <br><br>
+      </div>
     </div>
   </div>
   <div class="nav-container">
     <a href="./index.html">Back</a>
-    <button onclick="controller.writeRegionsFile();">Save</button>
+    <button onclick="editController.writeRegionsFile();">Save</button>
   </div>
 </body>
-<script src="libs/PerchUnit.js"></script>
-<script src="scripts/campaigns.js"></script>
-<script src="scripts/transforms.js"></script>
+<script src="data/sample.js"></script>
+<script src="components/campaigns.component.js"></script>
+<script src="components/transforms.component.js"></script>
 <script src="controllers/edit.controller.js"></script>
+<script src="controllers/canvas.controller.js"></script>
 <script>
-  var controller = new EditController();
+  var editController = new EditController();
+  var canvasController = new CanvasController();
+
+  function setup(){
+    canvasController.setup();
+  }
+
+  function draw(){
+    canvasController.draw();
+  }
+
+  window.addEventListener('resize', function() {
+    canvasController.resizeCanvas(window.outerWidth, window.outerHeight);
+  });
 </script>
 </html>

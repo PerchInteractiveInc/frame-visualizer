@@ -28,6 +28,7 @@ class EditController {
 			console.log(this.campaign);
 			this.render();
 		})
+		.catch(err => console.error(err))
 	}
 
 	handleHubEvent(e){
@@ -164,6 +165,21 @@ class EditController {
 		this.regions.aggregate = this.regions.aggregate || {};
 	}
 
+
+	// DOM
+
+	showCampaignsPanel(){
+		var campaignsPanel = document.getElementById('campaigns-panel');
+		campaignsPanel.style.display = 'inline-block';
+		this.canvasContainer.style.display = 'none';
+	}
+
+	hideCampaignsPanel(){
+		var campaignsPanel = document.getElementById('campaigns-panel');
+		campaignsPanel.style.display = 'none';
+		this.canvasContainer.style.display = '';
+	}
+
 	render(){
 		this.validateRegions(this.regions);
 		this.renderRegionsToJson(this.regions);
@@ -212,7 +228,7 @@ class EditController {
 			div.innerHTML = `
 				${area.name || '[unnamed]'}&nbsp;&nbsp;<button class="default-button">Calibrate</button>
 				&nbsp;&nbsp;
-				<a href="#" onclick="controller.removeProduct(${a})">x</a>
+				<a href="#" onclick="editController.removeProduct(${a})">x</a>
 			`
 			container.appendChild(div);
 		})
