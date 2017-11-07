@@ -82,20 +82,18 @@ class EditController {
 		})
 
 		var jsonInput = document.getElementById('regionsText');
-		var errorBox = document.getElementById('error-box');
 
 		jsonInput.addEventListener('input', () => {
 			var json = readRegionsJson();
 			if(json){
-				errorBox.innerHTML = '';
 				if(JSON.stringify(this.regions) == JSON.stringify(json)){
 					return;
 				}
 				this.setRegions(json);
-				this.render();
-			} else {
-				errorBox.innerHTML = 'Regions text is not valid JSON.';
+				this.renderRegionsToInputs(this.regions);
+				this.renderProductsPanel(this.regions);
 			}
+			this.renderErrors();
 		})
 	}
 
@@ -223,6 +221,7 @@ class EditController {
 		this.renderRegionsToInputs(this.regions);
 		this.renderProductsPanel(this.regions);
 		this.renderCampaignTitle(this.campaign.name);
+		this.renderErrors()
 	}
 
 	// Render functions
@@ -269,6 +268,16 @@ class EditController {
 			`
 			container.appendChild(div);
 		})
+	}
+
+	renderErrors(){
+		var errorBox = document.getElementById('error-box');
+		var json = readRegionsJson();
+		if(!json){
+			errorBox.innerHTML = 'Regions text not valid JSON.'
+		} else {
+			errorBox.innerHTML = '';
+		}
 	}
 
 	showControlPanel(){
