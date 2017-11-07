@@ -87,6 +87,9 @@ class EditController {
 			var updated = this.getRegions();
 			if(useAggregate.checked){
 				updated.aggregate = updated.aggregate || {};
+				if(!updated.aggregate.delay){
+					updated.aggregate.delay = 300;
+				}
 			} else {
 				delete updated.aggregate;
 			}
