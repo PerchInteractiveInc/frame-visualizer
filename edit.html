@@ -30,9 +30,10 @@
         <br> FlipY:
         <input type="checkbox" id="transformsFlipYInput">
         <br><br>
-        Aggregate Delay:
-        <br> Delay:
-        <input type="number" id="aggregateDelayInput">
+        <input type="checkbox" id="useAggregateInput"> Use Aggregator
+        <br>
+        Delay:
+        <input type="number" id="aggregateDelayInput"> ms
         <br><br>
 
         <strong>JSON</strong>
@@ -87,11 +88,6 @@
       return;
     }
     canvasController.draw();
-  }
-
-  function mouseClicked(){
-    console.log(mouseX, mouseY)
-    canvasController.addPoint(mouseX / canvasController.canvasWidth, mouseY / canvasController.canvasHeight)
   }
 
   window.addEventListener('resize', function() {

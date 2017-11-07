@@ -74,6 +74,9 @@ class CanvasController {
         this.addPoint(i/10, j/10, 20);
       }
     }
+    this.canvas.mouseClicked(() => {
+      this.addPoint(mouseX / this.canvasWidth, mouseY / this.canvasHeight);
+    })
   }
 
   draw(){

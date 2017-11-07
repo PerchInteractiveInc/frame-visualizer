@@ -32,6 +32,7 @@ class EditController {
 					throw new Error('No campaign found with id ' + this.campaignId)
 				}
 				console.log('Loaded campaign', this.campaign);
+				this.render();
 				resolve(this.campaign);
 			})
 			.catch(err => reject(err))
@@ -81,6 +82,18 @@ class EditController {
 			})
 		})
 
+		var useAggregate  = document.getElementById('useAggregateInput')
+		useAggregate.addEventListener('change', () => {
+			var updated = this.getRegions();
+			if(useAggregate.checked){
+				updated.aggregate = updated.aggregate || {};
+			} else {
+				delete updated.aggregate;
+			}
+			this.setRegions(updated);
+			this.render();
+		})
+
 		var jsonInput = document.getElementById('regionsText');
 
 		jsonInput.addEventListener('input', () => {
@@ -99,16 +112,16 @@ class EditController {
 
 	updateRegionsData(map, value, type){
 		var updated = Object.assign({}, this.regions);
-		if(value){
+		if(value && updated[map[0]]){
 			if(type === 'number'){
 				value = Number(value);
 			}
 			updated[map[0]][map[1]] = value;
-			this.setRegions(updated);
-		} else {
+		} else if(updated[map[0]]){
 			delete updated[map[0]][map[1]];
-			this.setRegions(updated);
 		}
+		this.setRegions(updated);
+		this.render();
 	}
 
 	getRegions(){
@@ -116,10 +129,14 @@ class EditController {
 	}
 
 	setRegions(regions){
+		var useAggregate = document.getElementById('useAggregateInput');
+
 		var updated = Object.assign({}, regions);
 		updated.areas = updated.areas || [];
 		updated.transforms = updated.transforms || {};
-		updated.aggregate = updated.aggregate || {};
+		if(useAggregate.checked){
+			updated.aggregate = updated.aggregate || {};
+		}
 		updated.areas = updated.areas.map(area => {
 			area.x = area.x / (updated.transforms.width || 1);
 			area.y = area.y / (updated.transforms.height || 1);
@@ -133,7 +150,6 @@ class EditController {
 		var campaign = Object.assign({}, this.campaign);
 		campaign.regions = updated;
 		this.emit('campaign-update', campaign);
-		this.render();
 	}
 
 	writeRegionsFile(){
@@ -233,6 +249,7 @@ class EditController {
 
 	renderRegionsToJson(regions){
 		document.getElementById('regionsText').value = JSON.stringify(regions, null, 2);
+		document.getElementById('useAggregateInput').checked = !!regions.aggregate;
 	}
 
 	renderRegionsToInputs(regions){
