@@ -13,7 +13,7 @@ class CanvasController {
     this.PerchUnit.on('sensing', e => this.handleHubEvent(e));
   }
 
-  loadCampaign(campaign){
+  setCampaign(campaign){
     console.log(campaign);
     this.campaign = campaign;
   }
@@ -30,11 +30,12 @@ class CanvasController {
       x: x,
       y: y,
       totalLife: life,
-      currentLife: life
+      currentLife: life,
+      regions: []
     };
     this.campaign.regions.areas.map((area, a) => {
       if(this.TransformService.rawPointIsWithinArea(point, area, this.campaign.regions.transforms)){
-        point.regionIndex = a;
+        point.regions.push(a);
       }
     })
     this.points.push(point);
@@ -54,7 +55,7 @@ class CanvasController {
     var activeLife = 30;
     for(var i = 0; i < this.points.length; i++){
       if(
-        this.points[i].regionIndex == a &&
+        this.points[i].regions.indexOf(a) > -1 &&
         this.points[i].totalLife - this.points[i].currentLife < activeLife
       ){
         return true;
@@ -66,7 +67,6 @@ class CanvasController {
   // Canvas functions
 
   setup(){
-    this.loadCampaign(sample);
     this.canvas = createCanvas(this.canvasWidth, this.canvasHeight);
     this.canvas.parent('canvasContainer');
     for (var i = 0; i < 10; i++){
@@ -81,11 +81,11 @@ class CanvasController {
     this.drawBackground();
 
     this.campaign.regions.areas.map((area, a) => {
-      this.drawArea(area, this.areaIsActive(a), this.campaign.regions.transforms.width, this.campaign.regions.transforms.height);
-    })
+      this.drawArea(area, a);
+    });
     this.points.map(point => {
       this.drawPoint(point);
-    })
+    });
 
     // Update
     this.agePoints();
@@ -97,16 +97,21 @@ class CanvasController {
     rect(0, 0, this.canvasWidth, this.canvasHeight);
   }
 
-  drawArea(area, isActive, frameWidth, frameHeight){
-    var scaled = this.TransformService.scaleAreaToCanvas(area, frameWidth, frameHeight, this.canvasWidth, this.canvasHeight);
-    isActive ? fill(252, 63, 63) : fill(255);
+  drawArea(area, a){
+    var scaled = this.TransformService.scaleAreaToCanvas(
+      area,
+      this.campaign.regions.transforms.width,
+      this.campaign.regions.transforms.height,
+      this.canvasWidth, this.canvasHeight
+    );
+    this.areaIsActive(a) ? fill(252, 63, 63) : fill(255);
     stroke(1);
     rect(scaled.x, scaled.y, scaled.width, scaled.height);
     noStroke();
     fill(0);
     textSize(14);
     textAlign(CENTER, CENTER);
-    text(scaled.name, scaled.x, scaled.y, scaled.width, scaled.height);
+    text(area.name, scaled.x, scaled.y, scaled.width, scaled.height);
   }
 
   drawPoint(point){

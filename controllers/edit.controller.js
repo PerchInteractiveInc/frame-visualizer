@@ -5,30 +5,54 @@ class EditController {
 		this.CampaignManager = new CampaignManager();
 		this.PerchUnit = new PerchUnit();
 		this.PerchUnit.on('sensing', e => this.handleHubEvent(e));
-		this.campaignId = getParameterByName('campaignId');
+		this.canvasController;
 		this.calibrationTarget;
 		this.calibrationPoints = [];
+		this.listeners = {};
 		this.setup();
 		this.addListeners();
 	}
 
 	setup(){
 		console.log('Initializing...');
-		this.CampaignManager.getAll()
-		.then(campaigns => {
-			campaigns.map(campaign => {
-				if(campaign.id === this.campaignId){
-					this.campaign = campaign;
-					this.setRegions(this.campaign.regions);
+		this.hideControlPanel();
+	}
+
+	loadCampaign(campaignId){
+		return new Promise((resolve, reject) => {
+			this.CampaignManager.getAll()
+			.then(campaigns => {
+				campaigns.map(campaign => {
+					if(campaign.id === campaignId){
+						this.campaign = campaign;
+						this.setRegions(this.campaign.regions);
+					}
+				});
+				if(!this.campaign){
+					throw new Error('No campaign found with id ' + this.campaignId)
 				}
-			});
-			if(!this.campaign){
-				throw new Error('No campaign found with id ' + this.campaignId)
-			}
-			console.log(this.campaign);
-			this.render();
+				console.log('Loaded campaign', this.campaign);
+				resolve(this.campaign);
+			})
+			.catch(err => reject(err))
 		})
-		.catch(err => console.error(err))
+	}
+
+	on(type, cb){
+		this.listeners[type] = this.listeners[type] || [];
+		this.listeners[type].push(cb);
+	}
+
+	emit(type, data){
+		if(this.listeners[type]){
+			this.listeners[type].map(cb => {
+				cb(data);
+			})
+		}
+	}
+
+	getCampaign(){
+		return this.campaign;
 	}
 
 	handleHubEvent(e){
@@ -67,7 +91,7 @@ class EditController {
 				if(JSON.stringify(this.regions) == JSON.stringify(json)){
 					return;
 				}
-				this.regions = json;
+				this.setRegions(json);
 				this.render();
 			} else {
 				errorBox.innerHTML = 'Regions text is not valid JSON.';
@@ -76,28 +100,42 @@ class EditController {
 	}
 
 	updateRegionsData(map, value, type){
+		var updated = Object.assign({}, this.regions);
 		if(value){
 			if(type === 'number'){
 				value = Number(value);
 			}
-			this.regions[map[0]][map[1]] = value;
+			updated[map[0]][map[1]] = value;
+			this.setRegions(updated);
 		} else {
-			delete this.regions[map[0]][map[1]];
+			delete updated[map[0]][map[1]];
+			this.setRegions(updated);
 		}
 	}
 
+	getRegions(){
+		return Object.assign({}, this.regions);
+	}
+
 	setRegions(regions){
-		this.regions = Object.assign({}, regions);
-		this.validateRegions(this.regions);
-		this.regions.areas = this.regions.areas.map(area => {
-			area.x = area.x / (this.regions.transforms.width || 1);
-			area.y = area.y / (this.regions.transforms.height || 1);
-			area.width = area.width / (this.regions.transforms.width || 1);
-			area.height = area.height / (this.regions.transforms.height || 1);
+		var updated = Object.assign({}, regions);
+		updated.areas = updated.areas || [];
+		updated.transforms = updated.transforms || {};
+		updated.aggregate = updated.aggregate || {};
+		updated.areas = updated.areas.map(area => {
+			area.x = area.x / (updated.transforms.width || 1);
+			area.y = area.y / (updated.transforms.height || 1);
+			area.width = area.width / (updated.transforms.width || 1);
+			area.height = area.height / (updated.transforms.height || 1);
 			return area;
 		})
-		delete this.regions.transforms.width;
-		delete this.regions.transforms.height;
+		delete updated.transforms.width;
+		delete updated.transforms.height;
+		this.regions = Object.assign({}, updated);
+		var campaign = Object.assign({}, this.campaign);
+		campaign.regions = updated;
+		this.emit('campaign-update', campaign);
+		this.render();
 	}
 
 	writeRegionsFile(){
@@ -105,6 +143,9 @@ class EditController {
 		if(!regions){
 			window.alert('JSON invalid.');
 			return;
+		}
+		if(!this.campaignId){
+			window.alert('Need campaign id to write json.')
 		}
 		this.CampaignManager.writeRegionsFile(this.campaignId, regions)
 		.then(() => {
@@ -117,21 +158,25 @@ class EditController {
 	}
 
 	addProduct(){
-		this.regions.areas.push({
+		var updated = this.getRegions();
+		updated.areas.push({
 			x: 0,
 			y: 0,
-			width: 0.2 * (this.regions.transforms.width || 1),
-			height: 0.2 * (this.regions.transforms.height || 1),
-			name: `Product${this.regions.areas.length + 1}`
+			width: 0.2 * (updated.transforms.width || 1),
+			height: 0.2 * (updated.transforms.height || 1),
+			name: `Product${updated.areas.length + 1}`
 		});
+		this.setRegions(updated);
 		this.render();
 	}
 
 	removeProduct(i){
 		console.log('Removing product ' + i)
-		this.regions.areas = this.regions.areas.filter((area, a) => {
+		var updated = this.getRegions();
+		updated.areas = updated.areas.filter((area, a) => {
 			return i == a ? false : true;
 		})
+		this.setRegions(updated);
 		this.render();
 	}
 
@@ -154,17 +199,10 @@ class EditController {
 	applyJsonToRegions(){
 		var json = readRegionsJson();
 		if(json){
-			this.regions = json;
+			this.setRegions(json);
 			this.render();
 		}
 	}
-
-	validateRegions(regions){
-		this.regions.areas = this.regions.areas || [];
-		this.regions.transforms = this.regions.transforms || {};
-		this.regions.aggregate = this.regions.aggregate || {};
-	}
-
 
 	// DOM
 
@@ -181,18 +219,17 @@ class EditController {
 	}
 
 	render(){
-		this.validateRegions(this.regions);
 		this.renderRegionsToJson(this.regions);
 		this.renderRegionsToInputs(this.regions);
 		this.renderProductsPanel(this.regions);
-		this.renderCampaignTitle();
+		this.renderCampaignTitle(this.campaign.name);
 	}
 
 	// Render functions
 
-	renderCampaignTitle(){
+	renderCampaignTitle(title){
 		var el = document.getElementById('campaign-title');
-		el.innerHTML = this.campaign.name;
+		el.innerHTML = title;
 	}
 
 	renderRegionsToJson(regions){
@@ -233,6 +270,24 @@ class EditController {
 			container.appendChild(div);
 		})
 	}
+
+	showControlPanel(){
+		var showButton = document.getElementById('control-toggle-show');
+		var hideButton = document.getElementById('control-toggle-hide');
+		var controlPanel = document.getElementById('control-panel');
+		showButton.style.display = 'none';
+		hideButton.style.display = 'inline-block';
+		controlPanel.style.display = 'inline-block';
+	}
+
+	hideControlPanel(){
+		var showButton = document.getElementById('control-toggle-show');
+		var hideButton = document.getElementById('control-toggle-hide');
+		var controlPanel = document.getElementById('control-panel');
+		showButton.style.display = 'inline-block';
+		hideButton.style.display = 'none';
+		controlPanel.style.display = 'none';
+	}
 }
 
 function readRegionsJson(){
@@ -257,13 +312,3 @@ function getInputMap(){
 }
 
 // Rendering
-
-function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}

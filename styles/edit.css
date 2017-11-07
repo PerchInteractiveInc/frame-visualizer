@@ -1,7 +1,12 @@
+body, html {
+  padding: 0;
+  margin: 0;
+}
+
 #control-panel {
   position: fixed;
   background-color: white;
-  width: 80%;
+  width: 500px;
   top: 10px;
   right: 30px;
   padding: 20px;
@@ -17,6 +22,13 @@
   top: 10px;
   right: 10px;
 }
+
+.control-toggle-container {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+}
+
 
 #regionsText {
   width: 100%;
@@ -35,11 +47,11 @@
 }
 
 .col-left {
-  width: 49%;
+  width: 60%;
 }
 
 .col-right {
-  width: 49%;
+  width: 39%;
 }
 
 .col-container {
@@ -55,4 +67,36 @@
 }
 .four-digit {
   width: 80px;
+}
+
+h1 {
+  margin-top: 0px;
+}
+.canvas-container {
+
+}
+.nav-container {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background-color: white;
+  border-radius: 4px;
+  padding: 6px 8px;
+}
+
+#campaigns-panel {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: white;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.product-item {
+  margin-bottom: 10px;
+}
+
+.control-panel {
+
 }
