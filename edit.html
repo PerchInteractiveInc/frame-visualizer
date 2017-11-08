@@ -62,56 +62,18 @@
 <script src="components/campaigns.component.js"></script>
 <script src="components/transforms.component.js"></script>
 <script src="components/calibrator.component.js"></script>
+<script src="components/vis.component.js"></script>
 <script src="controllers/edit.controller.js"></script>
-<script src="controllers/canvas.controller.js"></script>
 <script>
   var editController = new EditController();
-  editController.init();
-  var canvasController = new CanvasController();
-  var campaignId = getParameterByName('campaignId');
-  var perchUnit = new PerchUnit();
-
-  perchUnit.on('sensing', (e) => {
-    canvasController.receiveHubEvent(e);
-    editController.receiveHubEvent(e);
-  })
-
-  editController.on('campaign-update', campaign => {
-    canvasController.setCampaign(campaign);
-  })
 
   function setup(){
-    editController.loadCampaign(campaignId)
-    .then(campaign => {
-      canvasController.setCampaign(campaign);
-      canvasController.setup();
-      canvasController.canvas.mouseClicked(() => {
-        canvasController.addPoint(mouseX / canvasController.canvasWidth, mouseY / canvasController.canvasHeight);
-        editController.addPoint(mouseX / canvasController.canvasWidth, mouseY / canvasController.canvasHeight);
-      })
-    })
-    .catch(err => console.error(err))
+    editController.init();
   }
 
   function draw(){
-    if(!canvasController.campaign){
-      return;
-    }
-    canvasController.draw();
+    editController.draw();
   }
 
-  window.addEventListener('resize', function() {
-    canvasController.resizeCanvas(window.outerWidth, window.outerHeight);
-  });
-
-  function getParameterByName(name, url) {
-      if (!url) url = window.location.href;
-      name = name.replace(/[\[\]]/g, "\\$&");
-      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-          results = regex.exec(url);
-      if (!results) return null;
-      if (!results[2]) return '';
-      return decodeURIComponent(results[2].replace(/\+/g, " "));
-  }
 </script>
 </html>

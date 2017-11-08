@@ -1,10 +1,12 @@
 class EditController {
 	constructor(){
-		this.Calibrator = new Calibrator();
-		this.CampaignManager = new CampaignManager();
+		this.calibrator = new Calibrator();
+		this.campaignManager = new CampaignManager();
+		this.vis = new Visualizer();
+		this.campaignId = getParameterByName('campaignId');
+
 		this.campaign;
 		this.regions;
-		this.canvasController;
 		this.calibrationTarget;
 		this.calibrationPoints = [];
 		this.listeners = {};
@@ -14,11 +16,27 @@ class EditController {
 		console.log('Initializing...');
 		this.hideControlPanel();
 		this.addListeners();
+		this.loadCampaign(this.campaignId)
+		.then(() => {
+			this.vis.setCampaign(this.campaign);
+			this.vis.setup();
+			this.vis.canvas.mouseClicked(() => {
+				this.addPoint(mouseX / this.vis.canvasWidth, mouseY / this.vis.canvasHeight);
+			})
+			this.render();
+		})
+	}
+
+	draw(){
+		if(!this.vis.campaign){
+			return
+		}
+		this.vis.draw();
 	}
 
 	loadCampaign(campaignId){
 		return new Promise((resolve, reject) => {
-			this.CampaignManager.getAll()
+			this.campaignManager.getAll()
 			.then(campaigns => {
 				campaigns.map(campaign => {
 					if(campaign.id === campaignId){
@@ -30,27 +48,14 @@ class EditController {
 					throw new Error('No campaign found with id ' + this.campaignId)
 				}
 				console.log('Loaded campaign', this.campaign);
-				this.render();
 				resolve(this.campaign);
 			})
 			.catch(err => reject(err))
 		})
 	}
 
-	on(type, cb){
-		this.listeners[type] = this.listeners[type] || [];
-		this.listeners[type].push(cb);
-	}
-
-	emit(type, data){
-		if(this.listeners[type]){
-			this.listeners[type].map(cb => {
-				cb(data);
-			})
-		}
-	}
-
 	getCampaign(){
+		this.campaign.regions = this.regions;
 		return this.campaign;
 	}
 
@@ -65,10 +70,11 @@ class EditController {
 	}
 
 	addPoint(x, y){
-		this.Calibrator.addPoint({
+		this.calibrator.addPoint({
 			x: x,
 			y: y
 		});
+		this.vis.addPoint(x, y, null, !!this.calibrator.calibrationTarget);
 		this.render();
 	}
 
@@ -153,7 +159,6 @@ class EditController {
 		this.regions = Object.assign({}, updated);
 		var campaign = Object.assign({}, this.campaign);
 		campaign.regions = updated;
-		this.emit('campaign-update', campaign);
 	}
 
 	writeRegionsFile(){
@@ -165,7 +170,7 @@ class EditController {
 		if(!this.campaignId){
 			window.alert('Need campaign id to write json.')
 		}
-		this.CampaignManager.writeRegionsFile(this.campaignId, regions)
+		this.campaignManager.writeRegionsFile(this.campaignId, regions)
 		.then(() => {
 			window.alert('Successful!');
 		})
@@ -200,17 +205,24 @@ class EditController {
 
 	startCalibration(i){
 		console.log(`Starting calibration for area`, this.regions.areas[i])
-		var bucket = this.Calibrator.startCalibration(this.regions.areas[i]);
+		var bucket = this.calibrator.startCalibration(this.regions.areas[i]);
 		this.render();
 	}
 
 	stopCalibration(){
-		this.Calibrator.stopCalibration();
+		this.calibrator.stopCalibration();
+		this.render();
+	}
+
+	recalculateRegions(){
+		var regions = this.getRegions();
+		this.stopCalibration();
+		this.setRegions(this.calibrator.calculateRegions(regions));
 		this.render();
 	}
 
 	clearBucket(i){
-		this.Calibrator.clearBucketByArea(this.regions.areas[i]);
+		this.calibrator.clearBucketByArea(this.regions.areas[i]);
 		this.render();
 	}
 
@@ -237,11 +249,14 @@ class EditController {
 	}
 
 	render(){
-		this.renderRegionsToJson(this.regions);
-		this.renderRegionsToInputs(this.regions);
-		this.renderProductsPanel(this.regions);
-		this.renderCampaignTitle(this.campaign.name);
-		this.renderErrors()
+		var campaign = this.getCampaign();
+		var regions = this.getRegions();
+		this.vis.setCampaign(campaign);
+		this.renderRegionsToJson(regions);
+		this.renderRegionsToInputs(regions);
+		this.renderProductsPanel(regions);
+		this.renderCampaignTitle(campaign.name);
+		this.renderErrors();
 	}
 
 	// Render functions
@@ -278,12 +293,18 @@ class EditController {
 
 	renderProductsPanel(regions){
 		var container = document.getElementById('products-container');
+		var activeBucket = this.calibrator.getCalibrationTarget();
+		var buckets = this.calibrator.getBuckets();
 		while (container.lastChild) {
 		    container.removeChild(container.lastChild);
 		}
+		if(buckets.length > 0){
+			var div = document.createElement('div');
+			div.innerHTML = '<button onclick="editController.recalculateRegions()">Calculate</button>'
+			container.appendChild(div);
+		}
 		regions.areas.forEach((area, a) => {
-			var activeBucket = this.Calibrator.getCalibrationTarget(area);
-			var bucket = this.Calibrator.getBucketByArea(area);
+			var bucket = this.calibrator.getBucketByArea(area);
 			var div = document.createElement('div');
 			var str = '';
 
@@ -363,4 +384,12 @@ function getInputMap(){
 	return inputMap;
 }
 
-// Rendering
+function getParameterByName(name, url) {
+		if (!url) url = window.location.href;
+		name = name.replace(/[\[\]]/g, "\\$&");
+		var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(url);
+		if (!results) return null;
+		if (!results[2]) return '';
+		return decodeURIComponent(results[2].replace(/\+/g, " "));
+}

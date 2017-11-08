@@ -29,7 +29,6 @@ class Calibrator {
     for (var i = 0; i < this.buckets.length; i++){
       var bucket = this.buckets[i];
       if(bucket.area === area){
-        console.log('match')
         return bucket;
       }
     }
@@ -52,17 +51,18 @@ class Calibrator {
     }
   }
   calculateRegions(regions){
-    this.buckets.map(bucket => {
-      regions.areas = regions.areas.map(area => {
-        if(area === bucket.region){
-          var recalculated = bucket.calculateRegionFromPoints();
+    console.log(`Calculating regions from ${this.buckets.length} buckets...`);
+    regions.areas = regions.areas.map(area => {
+      this.buckets.map(bucket => {
+        if(area === bucket.area){
+          var recalculated = calculateAreaFromPoints(bucket.points);
           area.x = recalculated.x;
           area.y = recalculated.y;
           area.width = recalculated.width,
           area.height = recalculated.height
         }
-        return area;
-      })
+      });
+      return area;
     })
     return regions;
   }
@@ -107,5 +107,14 @@ class CalibrationBucket {
       height: height + yPad * 2
     }
     return region;
+  }
+}
+
+function calculateAreaFromPoints(points){
+  return {
+    x: 0,
+    y: 0,
+    width: 1,
+    height: 1
   }
 }

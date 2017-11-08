@@ -1,13 +1,16 @@
-class CanvasController {
+class Visualizer {
   constructor(){
     this.CampaignManager = new CampaignManager();
     this.TransformService = new TransformService();
-    this.campaigns = [];
-    this.canvas;
+
     this.canvasContainer = document.getElementById('canvasContainer');
-    this.points = [];
     this.canvasWidth = window.outerWidth;
     this.canvasHeight = window.outerHeight;
+
+    this.campaigns = [];
+    this.points = [];
+    this.canvas;
+
   }
 
   setCampaign(campaign){
@@ -21,13 +24,15 @@ class CanvasController {
     }
   }
 
-  addPoint(x, y, life){
+  addPoint(x, y, life, locked){
     life = life || 100;
+    locked = locked || false;
     var point = {
       x: x,
       y: y,
       totalLife: life,
       currentLife: life,
+      locked: locked,
       regions: []
     };
     this.campaign.regions.areas.map((area, a) => {
@@ -38,9 +43,15 @@ class CanvasController {
     this.points.push(point);
   }
 
+  clearPoints(){
+    this.points = [];
+  }
+
   agePoints(){
     this.points = this.points.map(point => {
-      point.currentLife -= 1;
+      if(!point.locked){
+        point.currentLife -= 1;
+      }
       return point;
     })
     this.points = this.points.filter(point => {
@@ -71,6 +82,9 @@ class CanvasController {
         this.addPoint(i/10, j/10, 20);
       }
     }
+    window.addEventListener('resize', function() {
+      this.resizeCanvas(window.outerWidth, window.outerHeight);
+    });
   }
 
   draw(){
@@ -101,7 +115,7 @@ class CanvasController {
       this.campaign.regions.transforms.height,
       this.canvasWidth, this.canvasHeight
     );
-    this.areaIsActive(a) ? fill(252, 63, 63) : fill(255);
+    this.areaIsActive(a) ? fill(252, 63, 63, 200) : fill(255, 255, 255, 200);
     stroke(1);
     rect(scaled.x, scaled.y, scaled.width, scaled.height);
     noStroke();
