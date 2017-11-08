@@ -24,7 +24,7 @@ class Visualizer {
     }
   }
 
-  addPoint(x, y, life, locked){
+  addPoint(x, y, life, locked, bucketId){
     life = life || 100;
     locked = locked || false;
     var point = {
@@ -33,7 +33,8 @@ class Visualizer {
       totalLife: life,
       currentLife: life,
       locked: locked,
-      regions: []
+      regions: [],
+      bucketId: bucketId
     };
     this.campaign.regions.areas.map((area, a) => {
       if(this.TransformService.rawPointIsWithinArea(point, area, this.campaign.regions.transforms)){
@@ -45,6 +46,12 @@ class Visualizer {
 
   clearPoints(){
     this.points = [];
+  }
+
+  clearPointsByBucketId(bucketId){
+    this.points = this.points.filter(point => {
+      return point.bucketId !== bucketId;
+    })
   }
 
   agePoints(){

@@ -34,12 +34,12 @@ class Calibrator {
     }
     return null;
   }
-  clearBucketByArea(area){
-    if(this.calibrationTarget && this.calibrationTarget.area === area){
+  clearBucketById(bucketId){
+    if(this.calibrationTarget && this.calibrationTarget.id === bucketId){
       this.calibrationTarget = null;
     }
     this.buckets = this.buckets.filter(bucket => {
-      return bucket.area !== area;
+      return bucket.id !== bucketId;
     })
   }
   clearAllBuckets(){
@@ -80,41 +80,65 @@ class CalibrationBucket {
       y: y
     })
   }
-  calculateRegionFromPoints(){
-    var minX, minY, maxX, maxY;
-    this.points.map(point => {
-      if(!minX || point.x < minX){
-        minX = point.x;
-      }
-      if(!maxX || point.x > maxX){
-        maxX = point.x;
-      }
-      if(!minY || point.y < minY){
-        minY = point.y;
-      }
-      if(!maxY || point.y > maxY){
-        maxY = point.y;
-      }
-    })
-    var width = maxX - minX;
-    var height = maxY - minY;
-    var xPad = width / 10;
-    var yPad = height / 10;
-    var region = {
-      x: minX - xPad,
-      y: minY - yPad,
-      width: width + xPad * 2,
-      height: height + yPad * 2
-    }
-    return region;
-  }
 }
 
 function calculateAreaFromPoints(points){
+  var bounds = getBoundsFromPoints(points);
+  var padded = padBounds(bounds);
+  var nonZero = ensureNonZeroDims(padded);
+  var constrained = constrainBoundsToCanvas(nonZero);
+  return constrained;
+}
+
+function getBoundsFromPoints(points){
+  var dims = ['x', 'y']
+  var bounds = [[null, null], [null, null]]
+  points.map(point => {
+    dims.map((dim, d) => {
+      var min = bounds[d][0];
+      var max = bounds[d][1];
+      if(min === null || point[dim] < min){
+        bounds[d][0] = point[dim];
+      }
+      if(max === null || point[dim] > max){
+        bounds[d][1] = point[dim];
+      }
+    })
+  })
   return {
-    x: 0,
-    y: 0,
-    width: 1,
-    height: 1
+    x: bounds[0][0],
+    y: bounds[1][0],
+    width: bounds[0][1] - bounds[0][0],
+    height: bounds[1][1] - bounds[1][0]
   }
+}
+
+function padBounds(bounds){
+  var percent = 0.2;
+  return {
+    x: bounds.x - bounds.width * percent,
+    y: bounds.y - bounds.height * percent,
+    width: bounds.width * (1 + percent * 2),
+    height: bounds.height * (1 + percent * 2)
+  }
+}
+
+
+function ensureNonZeroDims(bounds){
+  return {
+    x: bounds.x,
+    y: bounds.y,
+    width: Math.max(bounds.width, 0.05),
+    height: Math.max(bounds.height, 0.05)
+  }
+}
+
+function constrainBoundsToCanvas(bounds){
+  var res = {
+    x: Math.max(bounds.x, 0),
+    y: Math.max(bounds.y, 0)
+  };
+  res.width = Math.min(bounds.width, 1 - res.x);
+  res.height = Math.min(bounds.height, 1 - res.y);
+  return res;
 }

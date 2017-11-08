@@ -70,11 +70,13 @@ class EditController {
 	}
 
 	addPoint(x, y){
-		this.calibrator.addPoint({
-			x: x,
-			y: y
-		});
-		this.vis.addPoint(x, y, null, !!this.calibrator.calibrationTarget);
+		var activeBucket = this.calibrator.getCalibrationTarget();
+		var bucketId;
+		if(activeBucket){
+			bucketId = activeBucket.id;
+		}
+		this.calibrator.addPoint(x, y);
+		this.vis.addPoint(x, y, null, !!this.calibrator.calibrationTarget, bucketId);
 		this.render();
 	}
 
@@ -222,7 +224,11 @@ class EditController {
 	}
 
 	clearBucket(i){
-		this.calibrator.clearBucketByArea(this.regions.areas[i]);
+		var bucket = this.calibrator.getBucketByArea(this.regions.areas[i]);
+		if(bucket){
+			this.calibrator.clearBucketById(bucket.id);
+			this.vis.clearPointsByBucketId(bucket.id);
+		}
 		this.render();
 	}
 
