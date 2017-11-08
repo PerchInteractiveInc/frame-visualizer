@@ -2,15 +2,12 @@ class CanvasController {
   constructor(){
     this.CampaignManager = new CampaignManager();
     this.TransformService = new TransformService();
-    this.PerchUnit = new PerchUnit();
     this.campaigns = [];
     this.canvas;
     this.canvasContainer = document.getElementById('canvasContainer');
     this.points = [];
     this.canvasWidth = window.outerWidth;
     this.canvasHeight = window.outerHeight;
-
-    this.PerchUnit.on('sensing', e => this.handleHubEvent(e));
   }
 
   setCampaign(campaign){
@@ -74,9 +71,6 @@ class CanvasController {
         this.addPoint(i/10, j/10, 20);
       }
     }
-    this.canvas.mouseClicked(() => {
-      this.addPoint(mouseX / this.canvasWidth, mouseY / this.canvasHeight);
-    })
   }
 
   draw(){

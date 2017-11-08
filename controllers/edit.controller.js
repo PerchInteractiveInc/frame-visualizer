@@ -1,21 +1,19 @@
 class EditController {
 	constructor(){
+		this.Calibrator = new Calibrator();
+		this.CampaignManager = new CampaignManager();
 		this.campaign;
 		this.regions;
-		this.CampaignManager = new CampaignManager();
-		this.PerchUnit = new PerchUnit();
-		this.PerchUnit.on('sensing', e => this.handleHubEvent(e));
 		this.canvasController;
 		this.calibrationTarget;
 		this.calibrationPoints = [];
 		this.listeners = {};
-		this.setup();
-		this.addListeners();
 	}
 
-	setup(){
+	init(){
 		console.log('Initializing...');
 		this.hideControlPanel();
+		this.addListeners();
 	}
 
 	loadCampaign(campaignId){
@@ -58,17 +56,20 @@ class EditController {
 
 	handleHubEvent(e){
 		if(
-			typeof this.calibrationTarget === 'number' &&
-			this.regions.areas[this.calibrationTarget] &&
 			e.raw &&
 			typeof e.raw.xPos === 'number' &&
 			typeof e.raw.yPos === 'number'
 		){
-			this.calibrationPoints.push({
-				x: e.raw.xPos,
-				y: e.raw.yPos
-			})
+			this.addPoint(e.raw.xPos, e.raw.yPos)
 		}
+	}
+
+	addPoint(x, y){
+		this.Calibrator.addPoint({
+			x: x,
+			y: y
+		});
+		this.render();
 	}
 
 	addListeners(){
@@ -198,19 +199,19 @@ class EditController {
 	}
 
 	startCalibration(i){
-		this.calibrationTarget = i;
-		this.calibrationPoints = [];
+		console.log(`Starting calibration for area`, this.regions.areas[i])
+		var bucket = this.Calibrator.startCalibration(this.regions.areas[i]);
+		this.render();
 	}
 
-	endCalibration(){
-		// find external bounding box
-		// calculate new region
-		//
-		this.calibrationPoints = [];
+	stopCalibration(){
+		this.Calibrator.stopCalibration();
+		this.render();
 	}
 
-	clearCalibrationPoints(i){
-
+	clearBucket(i){
+		this.Calibrator.clearBucketByArea(this.regions.areas[i]);
+		this.render();
 	}
 
 	applyJsonToRegions(){
@@ -277,15 +278,37 @@ class EditController {
 
 	renderProductsPanel(regions){
 		var container = document.getElementById('products-container');
-		container.innerHTML = '';
-		regions.areas.map((area, a) => {
+		while (container.lastChild) {
+		    container.removeChild(container.lastChild);
+		}
+		regions.areas.forEach((area, a) => {
+			var activeBucket = this.Calibrator.getCalibrationTarget(area);
+			var bucket = this.Calibrator.getBucketByArea(area);
 			var div = document.createElement('div');
+			var str = '';
+
 			div.className = 'product-item';
-			div.innerHTML = `
-				${area.name || '[unnamed]'}&nbsp;&nbsp;<button class="default-button">Calibrate</button>
-				&nbsp;&nbsp;
+			str = `${area.name || '[unnamed]'}&nbsp;&nbsp;`
+			if(bucket){
+				str += `${bucket.points.length} points&nbsp;&nbsp;
+					<button onclick="editController.clearBucket(${a})">Clear</button>
+				`
+
+			}
+			if(activeBucket && activeBucket.area === area){
+				str += `
+					[calibrating]
+					<button onclick="editController.stopCalibration()">Stop</button>
+				`
+			} else {
+				str += `<button class="default-button" onclick="editController.startCalibration(${a})">Calibrate</button>
+					&nbsp;&nbsp;
+				`
+			}
+			str += `
 				<a href="#" onclick="editController.removeProduct(${a})">x</a>
 			`
+			div.innerHTML = str;
 			container.appendChild(div);
 		})
 	}
