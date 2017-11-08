@@ -3,6 +3,8 @@ class EditController {
 		this.calibrator = new Calibrator();
 		this.campaignManager = new CampaignManager();
 		this.vis = new Visualizer();
+		this.perch = new PerchUnit();
+
 		this.campaignId = getParameterByName('campaignId');
 
 		this.campaign;
@@ -16,6 +18,8 @@ class EditController {
 		console.log('Initializing...');
 		this.hideControlPanel();
 		this.addListeners();
+		this.perch.on('sensing', e => this.handleHubEvent(e));
+		
 		this.loadCampaign(this.campaignId)
 		.then(() => {
 			this.vis.setCampaign(this.campaign);
